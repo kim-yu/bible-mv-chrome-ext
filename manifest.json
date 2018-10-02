@@ -1,0 +1,19 @@
+{
+    "name": "Bible Memory Verse",
+    "version": "1.0",
+    "description": "Chrome extension that overrides the New Tab page and helps the user memorize Bible verses",
+    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "background": {
+      "scripts": ["jquery.min.js", "popup.js"],
+      "persistent": false
+    },
+    "chrome_url_overrides" : {
+        "newtab": "popup.html"
+    },
+    "content_scripts": [{
+        "matches": ["https://*/*"],
+        "js": ["jquery.min.js", "popup.js"],
+        "css": ["popup.css"]
+        }],
+    "manifest_version": 2
+}
