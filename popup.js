@@ -24,4 +24,14 @@ $(document).ready(() => {
         }
         verseDiv.appendChild(wordDiv);
     }
+
+    $(".word").dblclick(function (event) {
+        if ($(this).hasClass('visible')) {
+            $(this).removeClass('visible');
+            $(this).addClass('hidden');
+        } else if ($(this).hasClass('hidden')) {
+            $(this).removeClass('hidden');
+            $(this).addClass('visible');
+        }
+    })
 });
