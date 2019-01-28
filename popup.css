@@ -14,12 +14,36 @@
                                   supported by Chrome and Opera */
 }
 
+.button {
+    background-color: white;
+    border: solid;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    float: right;
+    margin: 100px 100px;
+    border-radius: 8px;
+    outline: none;
+    border-color: #2196F3;
+    font-size: 15px;
+}
+
+.button:hover {
+    cursor: pointer; 
+}
+
 #verse {
     font-size: 40px;
     width: 75%;
     display: block;
     padding-bottom: 10px;
     margin: auto;
+}
+
+.content {
+    position: relative;
 }
 
 .word {
@@ -29,11 +53,35 @@
 }
 
 #reference {
-    margin: 100px;
+    margin: 10px;
     font-size: 30px;
     clear: left;
 }
 
+#verse .content {
+    position: relative;
+    display: inline-block;
+}
+
+#verse .content .word {
+    width: 100%;
+}
+
+.visible {
+    color: black;
+    text-decoration: none;
+}
+
 .hidden {
     color: white;
+    text-decoration: underline;
+    text-decoration-color: black;
+}
+
+#verse .content span {
+    display: block;
+    color: transparent;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
