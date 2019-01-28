@@ -12,8 +12,10 @@
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
+    display: block;
 }
 
+/* Edit button */
 .button {
     background-color: white;
     border: solid;
@@ -23,48 +25,35 @@
     text-decoration: none;
     display: inline-block;
     float: right;
-    margin: 100px 100px;
+    top: 20%;
+    right: 10%;
     border-radius: 8px;
     outline: none;
     border-color: #2196F3;
     font-size: 15px;
+    position: absolute;
 }
 
 .button:hover {
     cursor: pointer; 
 }
 
+/* Verse */
 #verse {
     font-size: 40px;
     width: 75%;
-    display: block;
     padding-bottom: 10px;
     margin: auto;
-}
-
-.content {
     position: relative;
+    cursor: default;
+    white-space: pre-wrap;   
 }
 
 .word {
     float: left;
     margin-right: 7px;
     margin-left: 7px;
-}
-
-#reference {
-    margin: 10px;
-    font-size: 30px;
-    clear: left;
-}
-
-#verse .content {
-    position: relative;
     display: inline-block;
-}
-
-#verse .content .word {
-    width: 100%;
 }
 
 .visible {
@@ -73,15 +62,13 @@
 }
 
 .hidden {
-    color: white;
+    color: transparent;
     text-decoration: underline;
     text-decoration-color: black;
 }
 
-#verse .content span {
-    display: block;
-    color: transparent;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+#reference {
+    margin: auto;
+    margin-top: 70px;
+    font-size: 30px;
 }
