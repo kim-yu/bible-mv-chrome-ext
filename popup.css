@@ -56,13 +56,13 @@
 }
 
 .word {
-    margin-right: 5px;
-    margin-left: 5px;
+    margin-right: 7px;
+    margin-left: 7px;
 }
 
 .nonword {
     display: inline-block;
-    margin-left: -5px;
+    margin-left: -7px;
 }
 
 .visible {
@@ -74,6 +74,16 @@
     color: transparent;
     text-decoration: underline;
     text-decoration-color: black;
+}
+
+.blank {
+    font-size: 35px;
+    margin: auto;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    border-bottom: 4px solid black;
+    text-align: center;
 }
 
 #reference {
