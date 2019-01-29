@@ -33,26 +33,27 @@ $(document).ready(() => {
 
     // create elements for words
     let verseDiv = document.getElementById("verse");
-    var i;
-    for (i=0; i<tokens.length; i++) {
-        var wordSpan = document.createElement('span');
-        wordSpan.id = "word-"+i;
-        wordSpan.classList.add('token');
-        wordSpan.classList.add('word');
-        wordSpan.classList.add('visible');
-        $(wordSpan).on('click', changeVisibility);
+    if (verseDiv != null ) {
+    	for (i=0; i<tokens.length; i++) {
+	        var wordSpan = document.createElement('span');
+	        wordSpan.id = "word-"+i;
+	        wordSpan.classList.add('token');
+	        wordSpan.classList.add('word');
+	        wordSpan.classList.add('visible');
+	        $(wordSpan).on('click', changeVisibility);
 
-       	let token = tokens[i]
-        let word = cleanToken(token) // use the part of the word before punctuation
-        wordSpan.innerHTML = word
-        verseDiv.appendChild(wordSpan)
-        if (word.length != token.length) {
-        	nonwordSpan = document.createElement('span');
-        	nonwordSpan.classList.add('token');
-        	nonwordSpan.classList.add('nonword');
-        	nonwordSpan.innerHTML = token.slice(token.length-1)
-        	verseDiv.appendChild(nonwordSpan);
-        }
+	       	let token = tokens[i]
+	        let word = cleanToken(token) // use the part of the word before punctuation
+	        wordSpan.innerHTML = word
+	        verseDiv.appendChild(wordSpan)
+	        if (word.length != token.length) {
+	        	nonwordSpan = document.createElement('span');
+	        	nonwordSpan.classList.add('token');
+	        	nonwordSpan.classList.add('nonword');
+	        	nonwordSpan.innerHTML = token.slice(token.length-1)
+	        	verseDiv.appendChild(nonwordSpan);
+	        }
+	    }
     }
 
     // toggle edit mode
