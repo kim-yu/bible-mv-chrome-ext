@@ -116,6 +116,7 @@ $(document).ready(() => {
 		    	var element = document.getElementById(id);
 		    	if (element.nodeName == "INPUT") {
 		    		$(element).focus();
+		    		break;
 		    	}
 		    }
 		} else {
