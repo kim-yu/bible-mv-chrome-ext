@@ -70,6 +70,18 @@ $(document).ready(() => {
     	}
     });
 
+    // change color of text typed in blank to reflect accuracy
+    var changeColor = function () {
+    	var id = $(this).attr('id');
+    	var i = id.substring(5);
+    	var typed = $(this).val();
+    	if (typed == tokens[i].substring(0, typed.length)) {
+    		$(this).css('color', 'green');
+    	} else {
+    		$(this).css('color', 'red');
+    	}
+    }
+
     // change span to input
     var switchToInput = function (id) {
     	var wordSpan = document.getElementById(id);
@@ -83,6 +95,7 @@ $(document).ready(() => {
 	    $input.addClass("word");
 	    $input.width(width);
 	    $(wordSpan).replaceWith($input);
+	    $input.on('keyup', changeColor);
     }
 
     // change input to span
