@@ -71,25 +71,33 @@ $(document).ready(() => {
     	}
     });
 
-    // move cursor to next textfield if Tab or Enter is pressed
-    var moveCursor = function () {
-    	if (event.keyCode == 9 || event.keyCode == 13) {
-			textboxes = $('input.blank');
-			currentBoxIndex = textboxes.index(this);
-			if (currentBoxIndex < textboxes.length-1) {
-				nextBox = textboxes[currentBoxIndex+1];
-				nextBox.focus();
-			} else {
-				nextBox = textboxes[0]
-				nextBox.focus();
-			}
-			event.preventDefault();
-			return false;
+    // get next textfield
+    var focusNextTextField = function (currentI) {
+    	textboxes = $('input.blank');
+		currentBoxIndex = textboxes.index($("#word-" + currentI));
+		if (currentBoxIndex < textboxes.length-1) {
+			// focus the next textfield
+			nextBox = textboxes[currentBoxIndex+1];
+			nextBox.focus();
+		} else {
+			console.log('first');
+			// focus the first textfield in the verse
+		    for (i=0; i<tokens.length; i++) {
+		    	var id = "word-" + i;
+		    	var element = document.getElementById(id);
+		    	if (element.nodeName == "INPUT") {
+		    		$(element).focus();
+		    		break;
+		    	}
+		    }
 		}
+		event.preventDefault();
+		return false;
     }
 
-    // change color of text typed in blank to reflect accuracy
-    var changeColor = function () {
+    // update the color of text and switch to span depending on accuracy
+    var updateBlank = function () {
+    	// change color of text typed in blank to reflect accuracy
     	var id = $(this).attr('id');
     	var i = id.substring(5);
     	var typed = $(this).val();
@@ -98,6 +106,35 @@ $(document).ready(() => {
     	} else {
     		$(this).css('color', 'red');
     	}
+
+    	// if word is finished correctly
+    	if (typed == tokens[i]) {
+    		focusNextTextField(i); // focus the next textfield
+    		switchToSpan(id, true); //switch input to span
+    	}
+
+    	// if Tab or Enter key is pressed
+    	if (event.keyCode == 9 || event.keyCode == 13) {
+			textboxes = $('input.blank');
+			currentBoxIndex = textboxes.index(this);
+			if (currentBoxIndex < textboxes.length-1) {
+				// focus the next textfield
+				nextBox = textboxes[currentBoxIndex+1];
+				nextBox.focus();
+			} else {
+				// focus the first textfield in the verse
+			    for (i=0; i<tokens.length; i++) {
+			    	var id = "word-" + i;
+			    	var element = document.getElementById(id);
+			    	if (element.nodeName == "INPUT") {
+			    		$(element).focus();
+			    		break;
+			    	}
+			    }
+			}
+			event.preventDefault();
+			return false;
+		}
     }
 
     // change span to input
@@ -113,21 +150,29 @@ $(document).ready(() => {
 	    $input.addClass("word");
 	    $input.width(width);
 	    $(wordSpan).replaceWith($input);
-	    $input.on('keyup', changeColor);
-	    $input.on('keypress', moveCursor);
+	    $input.on('keyup', updateBlank);
     }
 
     // change input to span
-    var switchToSpan = function (id) {
+    var switchToSpan = function (id, correct) {
     	var wordInput = document.getElementById(id);
+    	var i = id.substring(5);
     	var word = cleanToken(tokens[i]);
     	var $span = $("<span>", {
-			text: handleDescenders(word)
+			text: correct ? word : handleDescenders(word)
 		});
 		$span.attr('id', id);
 		$span.addClass('token');
 		$span.addClass('word');
-		$span.addClass('hidden');
+		if (correct) {
+			$span.addClass('correct');
+			$span.addClass('visible');
+			isVisible[i] = true
+			$span.text = word;
+		} else {
+			$span.addClass('hidden');
+			$span.text = handleDescenders(word);
+		}
 		$(wordInput).replaceWith($span);
 		$span.on('click', changeVisibility);
     }
@@ -155,7 +200,7 @@ $(document).ready(() => {
 		    for (i=0; i<tokens.length; i++) {
 		    	var id = "word-"+i;
 		    	if (!isVisible[i]) {
-		    		switchToSpan(id);
+		    		switchToSpan(id, false);
 		    	}
 		    }
 		}
@@ -181,15 +226,6 @@ handleDescenders = function (word) {
 $(document).keydown(function (e) 
 {
     if (e.keyCode == 9) {
-        textboxes = $('input.blank');
-		currentBoxIndex = textboxes.index(e.target);
-		if (currentBoxIndex < textboxes.length-1) {
-			nextBox = textboxes[currentBoxIndex+1];
-			nextBox.focus();
-		} else {
-			nextBox = textboxes[0]
-			nextBox.focus();
-		}
 		event.preventDefault();
 		return false;
     }

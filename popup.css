@@ -1,6 +1,6 @@
 #container {
     text-align: center;
-    top: 25%;
+    top: 40%;
     bottom: 50%;
     left: 15%;
     right: 15%;
@@ -25,8 +25,8 @@
     text-decoration: none;
     display: inline-block;
     float: right;
-    top: 20%;
-    right: 10%;
+    top: 30%;
+    right: 15%;
     border-radius: 8px;
     outline: none;
     border-color: #2196F3;
@@ -46,7 +46,6 @@
     margin: auto;
     position: relative;
     cursor: default;
-    white-space: pre-wrap;  
     display: inline-block; 
 }
 
@@ -56,13 +55,11 @@
 }
 
 .word {
-    margin-right: 7px;
-    margin-left: 7px;
+    margin: 0px 7px 2px 7px;
 }
 
 .nonword {
-    display: inline-block;
-    margin-left: -7px;
+    margin: 0px 0px 2px -7px;
 }
 
 .visible {
@@ -72,8 +69,8 @@
 
 .hidden {
     color: transparent;
-    text-decoration: underline;
-    text-decoration-color: black;
+    border-bottom: 4px solid black;
+    margin-bottom: -4px;
 }
 
 .blank {
@@ -84,6 +81,13 @@
     background: transparent;
     border-bottom: 4px solid black;
     text-align: center;
+    margin-bottom: -4px;
+}
+
+.correct {
+    color: green;
+    border-bottom: 4px solid black;
+    margin-bottom: -4px;
 }
 
 #reference {
