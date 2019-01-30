@@ -20,7 +20,7 @@ $(document).ready(() => {
     		if (wordSpan.classList.contains('visible')) {
     			wordSpan.classList.remove('visible');
     			wordSpan.classList.add('hidden');
-    			wordSpan.innerHTML = handleDescenders(word);
+    			wordSpan.innerHTML = word;
     			isVisible[i] = false;
     		} else if (wordSpan.classList.contains('hidden')) {
     			wordSpan.classList.remove('hidden');
@@ -101,14 +101,15 @@ $(document).ready(() => {
     	var id = $(this).attr('id');
     	var i = id.substring(5);
     	var typed = $(this).val();
-    	if (typed == tokens[i].substring(0, typed.length)) {
+    	var word = cleanToken(tokens[i]);
+    	if (typed == word.substring(0, typed.length)) {
     		$(this).css('color', 'green');
     	} else {
     		$(this).css('color', 'red');
     	}
 
     	// if word is finished correctly
-    	if (typed == tokens[i]) {
+    	if (typed == word) {
     		focusNextTextField(i); // focus the next textfield
     		switchToSpan(id, true); //switch input to span
     	}
@@ -159,7 +160,7 @@ $(document).ready(() => {
     	var i = id.substring(5);
     	var word = cleanToken(tokens[i]);
     	var $span = $("<span>", {
-			text: correct ? word : handleDescenders(word)
+			text: word
 		});
 		$span.attr('id', id);
 		$span.addClass('token');
@@ -168,10 +169,8 @@ $(document).ready(() => {
 			$span.addClass('correct');
 			$span.addClass('visible');
 			isVisible[i] = true
-			$span.text = word;
 		} else {
 			$span.addClass('hidden');
-			$span.text = handleDescenders(word);
 		}
 		$(wordInput).replaceWith($span);
 		$span.on('click', changeVisibility);
@@ -216,11 +215,6 @@ cleanToken = function (token) {
 		return word;
 	}
 };
-
-// uses placeholders for letters with descenders
-handleDescenders = function (word) {
-	return word.replace('g','d').replace('q','d').replace('p','b').replace('j','i').replace('y','v');
-}
 
 // prevent default action of Tab key
 $(document).keydown(function (e) 

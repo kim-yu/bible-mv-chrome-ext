@@ -59,7 +59,7 @@
 }
 
 .nonword {
-    margin: 0px 0px 2px -7px;
+    margin: 0px 0px 2px -5px;
 }
 
 .visible {
@@ -75,7 +75,6 @@
 
 .blank {
     font-size: 35px;
-    margin: auto;
     border: 0;
     outline: 0;
     background: transparent;
