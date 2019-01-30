@@ -71,6 +71,23 @@ $(document).ready(() => {
     	}
     });
 
+    // move cursor to next textfield if Tab or Enter is pressed
+    var moveCursor = function () {
+    	if (event.keyCode == 9 || event.keyCode == 13) {
+			textboxes = $('input.blank');
+			currentBoxIndex = textboxes.index(this);
+			if (currentBoxIndex < textboxes.length-1) {
+				nextBox = textboxes[currentBoxIndex+1];
+				nextBox.focus();
+			} else {
+				nextBox = textboxes[0]
+				nextBox.focus();
+			}
+			event.preventDefault();
+			return false;
+		}
+    }
+
     // change color of text typed in blank to reflect accuracy
     var changeColor = function () {
     	var id = $(this).attr('id');
@@ -97,6 +114,7 @@ $(document).ready(() => {
 	    $input.width(width);
 	    $(wordSpan).replaceWith($input);
 	    $input.on('keyup', changeColor);
+	    $input.on('keypress', moveCursor);
     }
 
     // change input to span
@@ -158,3 +176,21 @@ cleanToken = function (token) {
 handleDescenders = function (word) {
 	return word.replace('g','d').replace('q','d').replace('p','b').replace('j','i').replace('y','v');
 }
+
+// prevent default action of Tab key
+$(document).keydown(function (e) 
+{
+    if (e.keyCode == 9) {
+        textboxes = $('input.blank');
+		currentBoxIndex = textboxes.index(e.target);
+		if (currentBoxIndex < textboxes.length-1) {
+			nextBox = textboxes[currentBoxIndex+1];
+			nextBox.focus();
+		} else {
+			nextBox = textboxes[0]
+			nextBox.focus();
+		}
+		event.preventDefault();
+		return false;
+    }
+});
