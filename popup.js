@@ -15,10 +15,148 @@ $(document).ready(() => {
 		tokens.push(verse2);
 	}
 
-    var isVisible = {}; // keep track of visibility of words
-    for (i=0; i<tokens.length; i++) {
-    	isVisible[i] = true;
-    }
+	// // Uncomment the code below to clear storage
+	// chrome.storage.sync.remove('status', function () {
+	// var error = chrome.runtime.lastError;
+	// 	if (error) {
+	// 	    console.error(error);
+	// 	}
+	// })
+
+	var isVisible = {};
+	chrome.storage.sync.get('status', function (result) {
+		// keep track of visibility of words
+		if (Object.keys(result).length == 0) {
+			for (i=0; i<tokens.length; i++) {
+		    	isVisible[i] = {"visible": true, "blank": false};
+		    }
+		} else {
+			isVisible = JSON.parse(result.status);
+		} 
+		makeDivs();
+	});
+
+	// create elements
+	makeDivs = function () {
+		// create elements for words in verse
+	    let verseDiv = document.getElementById("verse");
+	    if (verseDiv != null ) {
+	    	for (i=0; i<verseTokens.length; i++) {
+		        var wordSpan = document.createElement('span');
+		        wordSpan.id = i;
+		        wordSpan.classList.add('token');
+		        wordSpan.classList.add('word');
+		        if (isVisible[i]["visible"]) {
+		        	wordSpan.classList.add('visible');
+		        } else {
+		        	wordSpan.classList.add('hidden');
+		        }
+		        if (isVisible[i]["blank"]) {
+		        	wordSpan.classList.add('blank');
+		        }
+		        $(wordSpan).on('click', changeVisibility);
+
+		       	let token = verseTokens[i];
+		        let word = cleanToken(token); // use the part of the word before punctuation
+		        wordSpan.innerHTML = word;
+		        verseDiv.appendChild(wordSpan);
+		        if (word.length != token.length) {
+		        	nonwordSpan = document.createElement('span');
+		        	nonwordSpan.classList.add('token');
+		        	nonwordSpan.classList.add('nonword');
+		        	nonwordSpan.innerHTML = token.slice(token.length-1)
+		        	verseDiv.appendChild(nonwordSpan);
+		        }
+		    }
+	    }
+
+	    let referenceDiv = document.getElementById("reference");
+	    if (referenceDiv != null) {
+	    	id = verseTokens.length;
+
+	    	// add the book
+	    	var bookSpan = document.createElement('span');
+	    	bookSpan.id = id;
+	    	bookSpan.classList.add('token');
+	    	bookSpan.classList.add('word');
+	    	if (isVisible[id-verseTokens.length]["visible"]) {
+	    		bookSpan.classList.add('visible');
+	    	} else {
+	    		bookSpan.classList.add('hidden');
+	    	}
+	    	if (isVisible[id-verseTokens.length]["blank"]) {
+	    		bookSpan.classList.add('blank');
+	    	}
+	    	$(bookSpan).on('click', changeVisibility);
+	    	bookSpan.innerHTML = referenceTokens[0];
+	    	referenceDiv.appendChild(bookSpan);
+	    	
+	    	// add the chapter
+	    	var chapterSpan = document.createElement('span');
+	    	chapterSpan.id = id+1;
+	    	chapterSpan.classList.add('token');
+	    	chapterSpan.classList.add('word');
+	    	if (isVisible[id-verseTokens.length]["visible"]) {
+	    		chapterSpan.classList.add('visible');
+	    	} else {
+	    		chapterSpan.classList.add('hidden');
+	    	}
+	    	if (isVisible[id-verseTokens.length]["blank"]) {
+	    		chapterSpan.classList.add('blank');
+	    	}
+	    	$(chapterSpan).on('click', changeVisibility);
+	    	chapterSpan.innerHTML = referenceTokens[1];
+	    	referenceDiv.appendChild(chapterSpan);
+
+			// add the colon
+			var colonSpan = document.createElement('span');
+			colonSpan.classList.add('token');
+			colonSpan.innerHTML = ":";
+			referenceDiv.appendChild(colonSpan);
+
+	    	// add the verse(s)
+	    	var verse1Span = document.createElement('span');
+	    	verse1Span.id = id+2;
+	    	verse1Span.classList.add('token');
+	    	verse1Span.classList.add('word');
+	    	if (isVisible[id-verseTokens.length]["visible"]) {
+				verse1Span.classList.add('visible');
+	    	} else {
+	    		verse1Span.classList.add('hidden');
+	    	}
+	    	if (isVisible[id-verseTokens.length]["blank"]) {
+	    		verse1Span.classList.add('blank');
+	    	}
+	    	$(verse1Span).on('click', changeVisibility);
+	    	verse1Span.innerHTML = referenceTokens[2];
+	    	referenceDiv.appendChild(verse1Span);
+
+	    	if (referenceTokens.length == 4) {
+	    		// add the hyphen
+	    		var hyphenSpan = document.createElement('span');
+	    		hyphenSpan.classList.add('token');
+	    		hyphenSpan.innerHTML = "-";
+	    		referenceDiv.appendChild(hyphenSpan);
+
+	    		var verse2Span = document.createElement('span');
+	    		verse2Span.id = id+3;
+	    		verse2Span.classList.add('token');
+	    		verse2Span.classList.add('word');
+	    		if (isVisible[id-verseTokens.length]["visible"]) {
+	    			verse2Span.classList.add('visible');
+	    		} else {
+	    			verse2Span.classList.add('hidden');
+	    		}
+	    		if (isVisible[id-verseTokens.length]["blank"]) {
+	    			verse2Span.classList.add('blank');
+	    		}
+	    		$(verse2Span).on('click', changeVisibility);
+	    		verse2Span.innerHTML = referenceTokens[3];
+	    		referenceDiv.appendChild(verse2Span);
+	    	}
+	    }
+	    reloadVerse();
+	}
 
     // change visibility of word in edit mode
     var changeVisibility = function () {
@@ -34,96 +172,13 @@ $(document).ready(() => {
     			wordSpan.classList.remove('visible');
     			wordSpan.classList.add('hidden');
     			wordSpan.innerHTML = word;
-    			isVisible[id] = false;
+    			isVisible[id]["visible"] = false;
     		} else if (wordSpan.classList.contains('hidden')) {
     			wordSpan.classList.remove('hidden');
     			wordSpan.classList.add('visible');
     			wordSpan.innerHTML = word;
-    			isVisible[id] = true;
+    			isVisible[id]["visible"] = true;
     		}
-    	}
-    }
-
-    // create elements for words in verse
-    let verseDiv = document.getElementById("verse");
-    if (verseDiv != null ) {
-    	for (i=0; i<verseTokens.length; i++) {
-	        var wordSpan = document.createElement('span');
-	        wordSpan.id = i;
-	        wordSpan.classList.add('token');
-	        wordSpan.classList.add('word');
-	        wordSpan.classList.add('visible');
-	        $(wordSpan).on('click', changeVisibility);
-
-	       	let token = verseTokens[i];
-	        let word = cleanToken(token); // use the part of the word before punctuation
-	        wordSpan.innerHTML = word;
-	        verseDiv.appendChild(wordSpan);
-	        if (word.length != token.length) {
-	        	nonwordSpan = document.createElement('span');
-	        	nonwordSpan.classList.add('token');
-	        	nonwordSpan.classList.add('nonword');
-	        	nonwordSpan.innerHTML = token.slice(token.length-1)
-	        	verseDiv.appendChild(nonwordSpan);
-	        }
-	    }
-    }
-
-    let referenceDiv = document.getElementById("reference");
-    if (referenceDiv != null) {
-    	id = verseTokens.length;
-
-    	// add the book
-    	var bookSpan = document.createElement('span');
-    	bookSpan.id = id;
-    	bookSpan.classList.add('token');
-    	bookSpan.classList.add('word');
-    	bookSpan.classList.add('visible');
-    	$(bookSpan).on('click', changeVisibility);
-    	bookSpan.innerHTML = referenceTokens[0];
-    	referenceDiv.appendChild(bookSpan);
-    	
-    	// add the chapter
-    	var chapterSpan = document.createElement('span');
-    	chapterSpan.id = id+1;
-    	chapterSpan.classList.add('token');
-    	chapterSpan.classList.add('word');
-    	chapterSpan.classList.add('visible');
-    	$(chapterSpan).on('click', changeVisibility);
-    	chapterSpan.innerHTML = referenceTokens[1];
-    	referenceDiv.appendChild(chapterSpan);
-
-		// add the colon
-		var colonSpan = document.createElement('span');
-		colonSpan.classList.add('token');
-		colonSpan.innerHTML = ":";
-		referenceDiv.appendChild(colonSpan);
-
-    	// add the verse(s)
-    	var verse1Span = document.createElement('span');
-    	verse1Span.id = id+2;
-    	verse1Span.classList.add('token');
-    	verse1Span.classList.add('word');
-    	verse1Span.classList.add('visible');
-    	$(verse1Span).on('click', changeVisibility);
-    	verse1Span.innerHTML = referenceTokens[2];
-    	referenceDiv.appendChild(verse1Span);
-
-    	if (referenceTokens.length == 4) {
-    		// add the hyphen
-    		var hyphenSpan = document.createElement('span');
-    		hyphenSpan.classList.add('token');
-    		hyphenSpan.innerHTML = "-";
-    		referenceDiv.appendChild(hyphenSpan);
-
-    		var verse2Span = document.createElement('span');
-    		verse2Span.id = id+3;
-    		verse2Span.classList.add('token');
-    		verse2Span.classList.add('word');
-    		verse2Span.classList.add('visible');
-    		$(verse2Span).on('click', changeVisibility);
-    		verse2Span.innerHTML = referenceTokens[3];
-    		referenceDiv.appendChild(verse2Span);
     	}
     }
 
@@ -134,6 +189,7 @@ $(document).ready(() => {
     		$('button').css('background-color', 'white');
     		$('button').css('color', 'black');
     		reloadVerse();
+    		save(isVisible);
     	} else {
     		inEditMode = true
     		$('button').css('background-color', '#2196F3');
@@ -246,7 +302,7 @@ $(document).ready(() => {
 		if (correct) {
 			$span.addClass('correct');
 			$span.addClass('visible');
-			isVisible[id] = true
+			isVisible[id]["visible"] = true
 		} else {
 			$span.addClass('hidden');
 		}
@@ -258,7 +314,7 @@ $(document).ready(() => {
 	reloadVerse = function () {
 		if (!inEditMode) {
 			for (i=0; i<tokens.length; i++) {
-				if (!isVisible[i]) {
+				if (!isVisible[i]["visible"]) {
 					switchToInput(i);
 				}
 			}
@@ -273,7 +329,7 @@ $(document).ready(() => {
 		    }
 		} else {
 		    for (i=0; i<tokens.length; i++) {
-		    	if (!isVisible[i]) {
+		    	if (!isVisible[i]["visible"]) {
 		    		switchToSpan(i, false);
 		    	}
 		    }
@@ -290,6 +346,13 @@ cleanToken = function (token) {
 		return word;
 	}
 };
+
+// save isVisible
+save = function (isVisible) {
+	chrome.storage.sync.set({"status": JSON.stringify(isVisible)}, function() {
+		console.log("saved");
+    });
+}
 
 // prevent default action of Tab key
 $(document).keydown(function (e) 
