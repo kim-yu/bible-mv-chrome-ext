@@ -28,7 +28,7 @@ $(document).ready(() => {
 		// keep track of visibility of words
 		if (Object.keys(result).length == 0) {
 			for (i=0; i<tokens.length; i++) {
-		    	isVisible[i] = {"visible": true, "blank": false};
+		    	isVisible[i] = {"visible": true, "blank": false, "correct": false};
 		    }
 		} else {
 			isVisible = JSON.parse(result.status);
@@ -46,14 +46,18 @@ $(document).ready(() => {
 		        wordSpan.id = i;
 		        wordSpan.classList.add('token');
 		        wordSpan.classList.add('word');
-		        if (isVisible[i]["visible"]) {
-		        	wordSpan.classList.add('visible');
+		        if (isVisible[i]["correct"]) {
+		        	wordSpan.classList.add('correct');
 		        } else {
-		        	wordSpan.classList.add('hidden');
-		        }
-		        if (isVisible[i]["blank"]) {
-		        	wordSpan.classList.add('blank');
-		        }
+		        	if (isVisible[i]["visible"]) {
+			        	wordSpan.classList.add('visible');
+			        } else {
+			        	wordSpan.classList.add('hidden');
+			        }
+			        if (isVisible[i]["blank"]) {
+			        	wordSpan.classList.add('blank');
+			        }
+			    }
 		        $(wordSpan).on('click', changeVisibility);
 
 		       	let token = verseTokens[i];
@@ -79,14 +83,18 @@ $(document).ready(() => {
 	    	bookSpan.id = id;
 	    	bookSpan.classList.add('token');
 	    	bookSpan.classList.add('word');
-	    	if (isVisible[id-verseTokens.length]["visible"]) {
-	    		bookSpan.classList.add('visible');
-	    	} else {
-	    		bookSpan.classList.add('hidden');
-	    	}
-	    	if (isVisible[id-verseTokens.length]["blank"]) {
-	    		bookSpan.classList.add('blank');
-	    	}
+	    	if (isVisible[id]["correct"]) {
+	        	bookSpan.classList.add('correct');
+	        } else {
+	        	if (isVisible[id]["visible"]) {
+		        	bookSpan.classList.add('visible');
+		        } else {
+		        	bookSpan.classList.add('hidden');
+		        }
+		        if (isVisible[id]["blank"]) {
+		        	bookSpan.classList.add('blank');
+		        }
+		    }
 	    	$(bookSpan).on('click', changeVisibility);
 	    	bookSpan.innerHTML = referenceTokens[0];
 	    	referenceDiv.appendChild(bookSpan);
@@ -96,14 +104,18 @@ $(document).ready(() => {
 	    	chapterSpan.id = id+1;
 	    	chapterSpan.classList.add('token');
 	    	chapterSpan.classList.add('word');
-	    	if (isVisible[id-verseTokens.length]["visible"]) {
-	    		chapterSpan.classList.add('visible');
-	    	} else {
-	    		chapterSpan.classList.add('hidden');
-	    	}
-	    	if (isVisible[id-verseTokens.length]["blank"]) {
-	    		chapterSpan.classList.add('blank');
-	    	}
+	    	if (isVisible[id]["correct"]) {
+	        	chapterSpan.classList.add('correct');
+	        } else {
+	        	if (isVisible[id]["visible"]) {
+		        	chapterSpan.classList.add('visible');
+		        } else {
+		        	chapterSpan.classList.add('hidden');
+		        }
+		        if (isVisible[id]["blank"]) {
+		        	chapterSpan.classList.add('blank');
+		        }
+		    }
 	    	$(chapterSpan).on('click', changeVisibility);
 	    	chapterSpan.innerHTML = referenceTokens[1];
 	    	referenceDiv.appendChild(chapterSpan);
@@ -119,14 +131,18 @@ $(document).ready(() => {
 	    	verse1Span.id = id+2;
 	    	verse1Span.classList.add('token');
 	    	verse1Span.classList.add('word');
-	    	if (isVisible[id-verseTokens.length]["visible"]) {
-				verse1Span.classList.add('visible');
-	    	} else {
-	    		verse1Span.classList.add('hidden');
-	    	}
-	    	if (isVisible[id-verseTokens.length]["blank"]) {
-	    		verse1Span.classList.add('blank');
-	    	}
+	    	if (isVisible[id]["correct"]) {
+	        	verse1Span.classList.add('correct');
+	        } else {
+	        	if (isVisible[id]["visible"]) {
+		        	verse1Span.classList.add('visible');
+		        } else {
+		        	verse1Span.classList.add('hidden');
+		        }
+		        if (isVisible[id]["blank"]) {
+		        	verse1Span.classList.add('blank');
+		        }
+		    }
 	    	$(verse1Span).on('click', changeVisibility);
 	    	verse1Span.innerHTML = referenceTokens[2];
 	    	referenceDiv.appendChild(verse1Span);
@@ -142,14 +158,18 @@ $(document).ready(() => {
 	    		verse2Span.id = id+3;
 	    		verse2Span.classList.add('token');
 	    		verse2Span.classList.add('word');
-	    		if (isVisible[id-verseTokens.length]["visible"]) {
-	    			verse2Span.classList.add('visible');
-	    		} else {
-	    			verse2Span.classList.add('hidden');
-	    		}
-	    		if (isVisible[id-verseTokens.length]["blank"]) {
-	    			verse2Span.classList.add('blank');
-	    		}
+	    		if (isVisible[id]["correct"]) {
+		        	verse2Span.classList.add('correct');
+		        } else {
+		        	if (isVisible[id]["visible"]) {
+			        	verse2Span.classList.add('visible');
+			        } else {
+			        	verse2Span.classList.add('hidden');
+			        }
+			        if (isVisible[id]["blank"]) {
+			        	verse2Span.classList.add('blank');
+			        }
+			    }
 	    		$(verse2Span).on('click', changeVisibility);
 	    		verse2Span.innerHTML = referenceTokens[3];
 	    		referenceDiv.appendChild(verse2Span);
@@ -168,7 +188,13 @@ $(document).ready(() => {
     		} else {
     			word = referenceTokens[id-verseTokens.length];
     		}
-    		if (wordSpan.classList.contains('visible')) {
+    		if (wordSpan.classList.contains('correct')) {
+    			if (wordSpan.innerHTML == word) {
+    				wordSpan.classList.remove('correct');
+    				wordSpan.classList.add('hidden');
+    				isVisible[id]["visible"] = false;
+    			}
+    		} else if (wordSpan.classList.contains('visible')) {
     			wordSpan.classList.remove('visible');
     			wordSpan.classList.add('hidden');
     			wordSpan.innerHTML = word;
@@ -178,7 +204,7 @@ $(document).ready(() => {
     			wordSpan.classList.add('visible');
     			wordSpan.innerHTML = word;
     			isVisible[id]["visible"] = true;
-    		}
+    		} 
     	}
     }
 
@@ -240,6 +266,7 @@ $(document).ready(() => {
     	if (typed == word) {
     		focusNextTextField(id); // focus the next textfield
     		switchToSpan(id, true); //switch input to span
+    		isVisible[id]["correct"] = true;
     	}
 
     	// if Tab or Enter key is pressed
