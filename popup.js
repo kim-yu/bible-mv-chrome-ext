@@ -1,10 +1,10 @@
 $(document).ready(() => {
+	/** Retrieving data **/
+	// Get verse
     const verse = "Keep your heart with all diligence, For out of it spring the issues of life.";
     const reference = "Proverbs 4:23-24";
 
-    var inEditMode = false;
-
-	const verseTokens = verse.split(" "); // split verse into words and punctuation
+    const verseTokens = verse.split(" "); // split verse into words and punctuation
 	const referenceTokens = reference.split(/\W/)
 	const book = referenceTokens[0];
 	const chapter = referenceTokens[1];
@@ -14,6 +14,9 @@ $(document).ready(() => {
 		const verse2 = referenceTokens[3];
 		tokens.push(verse2);
 	}
+
+
+	/** Storage **/
 
 	// // Uncomment the code below to clear storage
 	// chrome.storage.sync.remove('status', function () {
@@ -36,7 +39,7 @@ $(document).ready(() => {
 		makeDivs();
 	});
 
-	// create elements
+	/**  Create HTML elements **/
 	makeDivs = function () {
 		// create elements for words in verse
 	    let verseDiv = document.getElementById("verse");
@@ -126,7 +129,7 @@ $(document).ready(() => {
 			colonSpan.innerHTML = ":";
 			referenceDiv.appendChild(colonSpan);
 
-	    	// add the verse(s)
+	    	// add the verse number(s)
 	    	var verse1Span = document.createElement('span');
 	    	verse1Span.id = id+2;
 	    	verse1Span.classList.add('token');
@@ -177,6 +180,9 @@ $(document).ready(() => {
 	    }
 	    reloadVerse();
 	}
+
+	/** User Interactions **/
+	var inEditMode = false;
 
     // change visibility of word in edit mode
     var changeVisibility = function () {
@@ -364,7 +370,8 @@ $(document).ready(() => {
 	}
 });
 
-// gets the part of the word before the punctuation
+
+/** Util functions **/
 cleanToken = function (token) {
 	if (token[token.length-1].match(/\w/) != null) {
 		return token;
@@ -378,7 +385,7 @@ cleanToken = function (token) {
 save = function (isVisible) {
 	chrome.storage.sync.set({"status": JSON.stringify(isVisible)}, function() {
 		console.log("saved");
-    });
+	});
 }
 
 // prevent default action of Tab key
