@@ -8,6 +8,83 @@
   </head>
   <title>Bible Memory Verse</title>
   <body>
+    <form id="user_input" method="get">
+      <select name="book">
+        <option value="" selected disabled hidden>--Book--</option>
+        <option value="genesis">Genesis</option>
+        <option value="exodus">Exodus</option>
+        <option value="leviticus">Leviticus</option>
+        <option value="numbers">Numbers</option>
+        <option value="deuteronomy">Deuteronomy</option>
+        <option value="joshua">Joshua</option>
+        <option value="judges">Judges</option>
+        <option value="ruth">Ruth</option>
+        <option value="1_samuel">1 Samuel</option>
+        <option value="2_samuel">2 Samuel</option>
+        <option value="1_kings">1 Kings</option>
+        <option value="2_kings">2 Kings</option>
+        <option value="1_chronicles">1 Chronicles</option>
+        <option value="2_chronicles">2 Chronicles</option>
+        <option value="ezra">Ezra</option>
+        <option value="nehemiah">Nehemiah</option>
+        <option value="esther">Esther</option>
+        <option value="job">Job</option>
+        <option value="psalm">Psalm</option>
+        <option value="proverbs">Proverbs</option>
+        <option value="ecclesiastes">Ecclesiastes</option>
+        <option value="song_of_solomon">Song of Solomon</option>
+        <option value="isaiah">Isaiah</option>
+        <option value="jeremiah">Jeremiah</option>
+        <option value="lamentations">Lamentations</option>
+        <option value="ezekiel">Ezekiel</option>
+        <option value="daniel">Daniel</option>
+        <option value="hosea">Hosea</option>
+        <option value="joel">Joel</option>
+        <option value="amos">Amos</option>
+        <option value="obadiah">Obadiah</option>
+        <option value="jonah">Jonah</option>
+        <option value="micah">Micah</option>
+        <option value="nahum">Nahum</option>
+        <option value="habakkuk">Habakkuk</option>
+        <option value="zephaniah">Zephaniah</option>
+        <option value="haggai">Haggai</option>
+        <option value="zechariah">Zechariah</option>
+        <option value="malachi">Malachi</option>
+        <option value="matthew">Matthew</option>
+        <option value="mark">Mark</option>
+        <option value="luke">Luke</option>
+        <option value="john">John</option>
+        <option value="acts">Acts</option>
+        <option value="romans">Romans</option>
+        <option value="1_corinthians">1 Corinthians</option>
+        <option value="2_corinthians">2 Corinthians</option>
+        <option value="galatians">Galatians</option>
+        <option value="ephesians">Ephesians</option>
+        <option value="philippians">Philippians</option>
+        <option value="colossians">Colossians</option>
+        <option value="1_thessalonians">1 Thessalonians</option>
+        <option value="2_thessalonians">2 Thessalonians</option>
+        <option value="1_timothy">1 Timothy</option>
+        <option value="2_timothy">2 Timothy</option>
+        <option value="titus">Titus</option>
+        <option value="philemon">Philemon</option>
+        <option value="hebrews">Hebrews</option>
+        <option value="james">James</option>
+        <option value="1_peter">1 Peter</option>
+        <option value="2_peter">2 Peter</option>
+        <option value="1_john">1 John</option>
+        <option value="2_john">2 John</option>
+        <option value="3_john">3 John</option>
+        <option value="jude">Jude</option>
+        <option value="revelation">Revelation</option>
+      </select>
+      <input type="number" name="chapter" placeholder="Chapter">
+      :
+      <input type="number" name="verse_start" placeholder="Starting verse">
+      -
+      <input type="number" name="verse_end" placeholder="Ending verse">
+      <input type="submit" value="Go">
+    </form>
     <button class="button">Edit</button> 
     <div id="container">
       <div id="verse">
