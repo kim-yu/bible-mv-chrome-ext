@@ -4,12 +4,13 @@
     <link rel="stylesheet" type="text/css" href="popup.css">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="popup.js"></script>
+    <script type="text/javascript" src="config.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   </head>
   <title>Bible Memory Verse</title>
   <body>
-    <form id="user_input" method="get">
-      <select name="book">
+    <div id="user_input">
+      <select id="book" name="book">
         <option value="" selected disabled hidden>--Book--</option>
         <option value="genesis">Genesis</option>
         <option value="exodus">Exodus</option>
@@ -78,18 +79,19 @@
         <option value="jude">Jude</option>
         <option value="revelation">Revelation</option>
       </select>
-      <input type="number" name="chapter" placeholder="Chapter">
+      <input id="chapter" type="number" name="chapter" placeholder="Chapter">
       :
-      <input type="number" name="verse_start" placeholder="Starting verse">
+      <input id="verse_start" type="number" name="verse_start" placeholder="Starting verse">
       -
-      <input type="number" name="verse_end" placeholder="Ending verse">
-      <input type="submit" value="Go">
-    </form>
+      <input id="verse_end" type="number" name="verse_end" placeholder="Ending verse">
+      <input id="search" type="submit" value="Go">
+    </div>
     <button class="button">Edit</button> 
     <div id="container">
       <div id="verse">
         
       </div>
+      <br>
       <div id="reference">
 
       </div>
