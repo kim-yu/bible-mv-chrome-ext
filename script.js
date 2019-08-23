@@ -1,11 +1,33 @@
 $(document).ready(() => {
+	/** Initialize constants **/
+	const TOKEN = "token";
+	const WORD = "word";
+	const NONWORD = "nonword";
+	const VALUE = "value";
+	const VISIBLE = "visible";
+	const HIDDEN = "hidden";
+	const BLANK = "blank";
+	const CORRECT = "correct";
+	const CORS_URL = 'https://cors-anywhere.herokuapp.com';
+	const API_URL = 'https://api.esv.org/v3/passage/text';
+	const paramsDict = {
+		'include-passage-references': false,
+		'include-verse-numbers': false,
+		'include-first-verse-numbers': false,
+		'include-footnotes': false,
+		'include-headings': false,
+		'include-short-copyright': false,
+		'include-selahs': false,
+		'indent-poetry': false
+	};
+
 	/** Initialize variables **/
-	var verse = "";
-	var reference = "";
-	var book = "";
-	var chapter = "";
-	var verse_start = "";
-	var verse_end = "";
+	var verse;
+	var reference;
+	var book;
+	var chapter;
+	var verse_start;
+	var verse_end;
 	var verseTokens;
 	var referenceTokens;
 	var tokens;
@@ -15,20 +37,32 @@ $(document).ready(() => {
 	// Get passage
 	$('#search').click(function (event) {
 		var request = new XMLHttpRequest();
+		// Set up parameters
+		var params = "&" + Object
+	        .keys(paramsDict)
+	        .map(function(param){
+	          return param+"="+encodeURIComponent(paramsDict[param])
+	        })
+	        .join("&");
+		
+		// Get values entered by user
 		var b = document.getElementById('book');
 		var selectedBook = b.options[b.selectedIndex].value;
 		book = selectedBook.charAt(0).toUpperCase() + selectedBook.slice(1); // capitalize book name
 		chapter = document.getElementById('chapter').value;
 		verse_start = document.getElementById('verse_start').value;
 		verse_end = document.getElementById('verse_end').value;
+		
 		if (verse_end.length > 0) {
 			reference = `${book} ${chapter}:${verse_start}-${verse_end}`;
-			request.open('GET', `https://cors-anywhere.herokuapp.com/https://api.esv.org/v3/passage/text/?q=${book}${chapter}:${verse_start}-${verse_end}&include-passage-references=false&include-headings=false&include-footnotes=false&include-first-verse-numbers=false&include-footnote-body=false&include-headings=false&indent-poetry=false&include-verse-numbers=false&include-short-copyright=false&include-passage-references=false&include-selahs=false`)
+			request.open('GET', `${CORS_URL}/${API_URL}/?q=${book}${chapter}:${verse_start}-${verse_end}${params}`)
 		} else {
 			reference = `${book} ${chapter}:${verse_start}`;
-			request.open('GET', `https://cors-anywhere.herokuapp.com/https://api.esv.org/v3/passage/text/?q=${book}${chapter}:${verse_start}&include-passage-references=false&include-headings=false&include-footnotes=false&include-first-verse-numbers=false&include-footnote-body=false&include-headings=false&indent-poetry=false&include-verse-numbers=false&include-short-copyright=false&include-passage-references=false&include-selahs=false`)
+			request.open('GET', `${CORS_URL}/${API_URL}/?q=${book}${chapter}:${verse_start}${params}`)
 		}
-		request.setRequestHeader("authorization", config.API_KEY);
+		
+		request.setRequestHeader("Authorization", config.API_KEY);
+		request.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); 
 		request.onload = function () {
 			var data = JSON.parse(this.response);
 			passage = data["passages"][0];
@@ -46,7 +80,7 @@ $(document).ready(() => {
 
 			// Initialize token dictionary
 			for (i=0; i<tokens.length; i++) {
-		    	tokenDict[i] = {"value": tokens[i], "visible": true, "blank": false, "correct": false};
+		    	tokenDict[i] = {VALUE: tokens[i], VISIBLE: true, BLANK: false, CORRECT: false};
 		    }
 
 			makeDivs();
@@ -65,194 +99,135 @@ $(document).ready(() => {
 	// 	}
 	// });
 
-	chrome.storage.sync.get(['verseTokens', 'referenceTokens', 'status'], function (result) {
-		if (Object.keys(result).length == 0) {
-			verseTokens = verseTokens;
-		} else {
+	chrome.storage.sync.get(['verseTokens', 'referenceTokens', 'tokenDict'], function (result) {
+		if (result.verseTokens != undefined) {
 			verseTokens = JSON.parse(result.verseTokens);
-		}	
-
-		if (Object.keys(result).length == 0) {
-			if (verseTokens != null) {
+		} 
+		if (result.referenceTokens != undefined) {
+			referenceTokens = JSON.parse(result.referenceTokens);
+			if (verseTokens != undefined) {
 				tokens = verseTokens.concat(referenceTokens);
 			}
-		} else {
-			referenceTokens = JSON.parse(result.referenceTokens);
-			tokens = verseTokens.concat(referenceTokens);
 		}		
-
-		// keep track of visibility of words
-		if (Object.keys(result).length == 0 && tokens != null) {
-			for (i=0; i<tokens.length; i++) {
-		    	tokenDict[i] = {"value": tokens[i], "visible": true, "blank": false, "correct": false};
-		    }
-		} else {
-			tokenDict = JSON.parse(result.status);
-		} 
+		if (result.tokenDict != undefined) {
+			tokenDict = JSON.parse(result.tokenDict);
+		}
 
 		makeDivs();
 		save(verseTokens, referenceTokens, tokenDict);
 	});
 
 	/**  Create HTML elements **/
+	// Helper functions for creating HTML elements
+	initializeClassesForTokenSpan = function (tokenSpan) {
+		tokenSpan.classList.add(TOKEN);
+		tokenSpan.classList.add(WORD);
+	};
+
+	modifyClassesForTokenSpan = function (tokenSpan, index) {
+		if (tokenDict[index].CORRECT) {
+        	tokenSpan.classList.add(CORRECT);
+        } else {
+        	if (tokenDict[index].VISIBLE) {
+	        	tokenSpan.classList.add(VISIBLE);
+	        	tokenSpan.classList.remove(HIDDEN);
+	        } else {
+	        	tokenSpan.classList.add(HIDDEN);
+	        	tokenSpan.classList.remove(VISIBLE);
+	        }
+	        if (tokenDict[index].BLANK) {
+	        	tokenSpan.classList.add(BLANK);
+	        } else {
+	        	tokenSpan.classList.remove(BLANK);
+	        }
+	    }
+	}
+
 	makeDivs = function () {
 		// create elements for words in verse
 	    let verseDiv = document.getElementById("verse");
 	    verseDiv.innerHTML = "";
-	    if (verseTokens != null) {
+	    if (verseTokens != undefined) {
 	    	for (i=0; i<verseTokens.length; i++) {
 		        var wordSpan = document.createElement('span');
 		        wordSpan.id = i;
-		        wordSpan.classList.add('token');
-		        wordSpan.classList.add('word');
-		        if (tokenDict[i]["correct"]) {
-		        	wordSpan.classList.add('correct');
-		        } else {
-		        	if (tokenDict[i]["visible"]) {
-			        	wordSpan.classList.add('visible');
-			        	wordSpan.classList.remove('hidden');
-			        } else {
-			        	wordSpan.classList.add('hidden');
-			        	wordSpan.classList.remove('visible');
-			        }
-			        if (tokenDict[i]["blank"]) {
-			        	wordSpan.classList.add('blank');
-			        } else {
-			        	wordSpan.classList.remove('blank');
-			        }
-			    }
+		        this.initializeClassesForTokenSpan(wordSpan);
+		        this.modifyClassesForTokenSpan(wordSpan, i);
 		        $(wordSpan).on('click', changeVisibility);
 
 		       	let token = verseTokens[i];
 		        let word = cleanToken(token); // use the part of the word before punctuation
 		        wordSpan.innerHTML = word;
 		        verseDiv.appendChild(wordSpan);
+		        
+		        // add spaces between words
 		        if (word.length != token.length) {
 		        	nonwordSpan = document.createElement('span');
-		        	nonwordSpan.classList.add('token');
-		        	nonwordSpan.classList.add('nonword');
+		        	nonwordSpan.classList.add(TOKEN);
+		        	nonwordSpan.classList.add(NONWORD);
 		        	nonwordSpan.innerHTML = token.slice(token.length-1)
 		        	verseDiv.appendChild(nonwordSpan);
 		        }
 		    }
 	    }
 
+	    // create elements for reference
 	    let referenceDiv = document.getElementById("reference");
 	    referenceDiv.innerHTML = "";
-	    if (referenceTokens != null) {
+	    if (referenceTokens != undefined) {
 	    	id = verseTokens.length;
 
 	    	// add the book
 	    	var bookSpan = document.createElement('span');
 	    	bookSpan.id = id;
-	    	bookSpan.classList.add('token');
-	    	bookSpan.classList.add('word');
-	    	if (tokenDict[id]["correct"]) {
-	        	bookSpan.classList.add('correct');
-	        } else {
-	        	if (tokenDict[id]["visible"]) {
-		        	bookSpan.classList.add('visible');
-		        	bookSpan.classList.remove('hidden');
-		        } else {
-		        	bookSpan.classList.add('hidden');
-		        	bookSpan.classList.remove('visible');
-		        }
-		        if (tokenDict[id]["blank"]) {
-		        	bookSpan.classList.add('blank');
-		        } else {
-		        	bookSpan.classList.remove('blank');
-		        }
-		    }
+	    	this.initializeClassesForTokenSpan(bookSpan);
+	    	this.modifyClassesForTokenSpan(bookSpan, id);
 	    	$(bookSpan).on('click', changeVisibility);
 	    	bookSpan.innerHTML = referenceTokens[0];
 	    	referenceDiv.appendChild(bookSpan);
 	    	
 	    	// add the chapter
 	    	var chapterSpan = document.createElement('span');
-	    	chapterSpan.id = id+1;
-	    	chapterSpan.classList.add('token');
-	    	chapterSpan.classList.add('word');
-	    	if (tokenDict[id+1]["correct"]) {
-	        	chapterSpan.classList.add('correct');
-	        } else {
-	        	if (tokenDict[id+1]["visible"]) {
-		        	chapterSpan.classList.add('visible');
-		        	chapterSpan.classList.remove('hidden');
-		        } else {
-		        	chapterSpan.classList.add('hidden');
-		        	chapterSpan.classList.remove('visible');
-		        }
-		        if (tokenDict[id+1]["blank"]) {
-		        	chapterSpan.classList.add('blank');
-		        } else {
-		        	chapterSpan.classList.remove('blank');
-		        }
-		    }
+	    	var chapterSpanId = id+1;
+	    	chapterSpan.id = chapterSpanId;
+	    	this.initializeClassesForTokenSpan(chapterSpan);
+	    	this.modifyClassesForTokenSpan(chapterSpan, chapterSpanId);
 	    	$(chapterSpan).on('click', changeVisibility);
 	    	chapterSpan.innerHTML = referenceTokens[1];
 	    	referenceDiv.appendChild(chapterSpan);
 
 			// add the colon
 			var colonSpan = document.createElement('span');
-			colonSpan.classList.add('token');
+			colonSpan.classList.add(TOKEN);
 			colonSpan.innerHTML = ":";
 			referenceDiv.appendChild(colonSpan);
 
-	    	// add the verse number(s)
-	    	var verse1Span = document.createElement('span');
-	    	verse1Span.id = id+2;
-	    	verse1Span.classList.add('token');
-	    	verse1Span.classList.add('word');
-	    	if (tokenDict[id+2]["correct"]) {
-	        	verse1Span.classList.add('correct');
-	        } else {
-	        	if (tokenDict[id+2]["visible"]) {
-		        	verse1Span.classList.add('visible');
-		        	verse1Span.classList.remove('hidden');
-		        } else {
-		        	verse1Span.classList.add('hidden');
-		        	verse1Span.classList.remove('visible');
-		        }
-		        if (tokenDict[id+2]["blank"]) {
-		        	verse1Span.classList.add('blank');
-		        } else {
-		        	verse1Span.classList.remove('blank');
-		        }
-		    }
-	    	$(verse1Span).on('click', changeVisibility);
-	    	verse1Span.innerHTML = referenceTokens[2];
-	    	referenceDiv.appendChild(verse1Span);
+	    	// add the starting verse
+	    	var verseStartSpan = document.createElement('span');
+	    	var verseStartSpanId = id+2;
+	    	verseStartSpan.id = verseStartSpanId;
+	    	this.initializeClassesForTokenSpan(verseStartSpan);
+	    	this.modifyClassesForTokenSpan(verseStartSpan, verseStartSpanId);
+	    	$(verseStartSpan).on('click', changeVisibility);
+	    	verseStartSpan.innerHTML = referenceTokens[2];
+	    	referenceDiv.appendChild(verseStartSpan);
 
-	    	if (referenceTokens.length == 4) {
+	    	if (referenceTokens.length == 4) { // if the reference includes multiple verses
 	    		// add the hyphen
 	    		var hyphenSpan = document.createElement('span');
-	    		hyphenSpan.classList.add('token');
+	    		hyphenSpan.classList.add(TOKEN);
 	    		hyphenSpan.innerHTML = "-";
 	    		referenceDiv.appendChild(hyphenSpan);
 
-	    		var verse2Span = document.createElement('span');
-	    		verse2Span.id = id+3;
-	    		verse2Span.classList.add('token');
-	    		verse2Span.classList.add('word');
-	    		if (tokenDict[id+3]["correct"]) {
-		        	verse2Span.classList.add('correct');
-		        } else {
-		        	if (tokenDict[id+3]["visible"]) {
-			        	verse2Span.classList.add('visible');
-			        	verse2Span.classList.remove('hidden');
-			        } else {
-			        	verse2Span.classList.add('hidden');
-			        	verse2Span.classList.remove('visible');
-			        }
-			        if (tokenDict[id+3]["blank"]) {
-			        	verse2Span.classList.add('blank');
-			        } else {
-			        	verse2Span.classList.remove('blank');
-			        }
-			    }
-	    		$(verse2Span).on('click', changeVisibility);
-	    		verse2Span.innerHTML = referenceTokens[3];
-	    		referenceDiv.appendChild(verse2Span);
+	    		// add the ending verse
+	    		var verseEndSpan = document.createElement('span');
+	    		var verseEndSpanId = id+3;
+	    		verseEndSpan.id = verseEndSpanId;
+	    		this.initializeClassesForTokenSpan(verseEndSpan);
+	    		this.modifyClassesForTokenSpan(verseEndSpan, verseEndSpanId);
+	    		$(verseEndSpan).on('click', changeVisibility);
+	    		verseEndSpan.innerHTML = referenceTokens[3];
+	    		referenceDiv.appendChild(verseEndSpan);
 	    	}
 	    }
 	    reloadVerse();
@@ -271,22 +246,22 @@ $(document).ready(() => {
     		} else {
     			word = referenceTokens[id-verseTokens.length];
     		}
-    		if (wordSpan.classList.contains('correct')) {
+    		if (wordSpan.classList.contains(CORRECT)) {
     			if (wordSpan.innerHTML == word) {
-    				wordSpan.classList.remove('correct');
-    				wordSpan.classList.add('hidden');
-    				tokenDict[id]["visible"] = false;
+    				wordSpan.classList.remove(CORRECT);
+    				wordSpan.classList.add(HIDDEN);
+    				tokenDict[id].VISIBLE = false;
     			}
-    		} else if (wordSpan.classList.contains('visible')) {
-    			wordSpan.classList.remove('visible');
-    			wordSpan.classList.add('hidden');
+    		} else if (wordSpan.classList.contains(VISIBLE)) {
+    			wordSpan.classList.remove(VISIBLE);
+    			wordSpan.classList.add(HIDDEN);
     			wordSpan.innerHTML = word;
-    			tokenDict[id]["visible"] = false;
-    		} else if (wordSpan.classList.contains('hidden')) {
-    			wordSpan.classList.remove('hidden');
-    			wordSpan.classList.add('visible');
+    			tokenDict[id].VISIBLE = false;
+    		} else if (wordSpan.classList.contains(HIDDEN)) {
+    			wordSpan.classList.remove(HIDDEN);
+    			wordSpan.classList.add(VISIBLE);
     			wordSpan.innerHTML = word;
-    			tokenDict[id]["visible"] = true;
+    			tokenDict[id].VISIBLE = true;
     		} 
     	}
     }
@@ -294,13 +269,15 @@ $(document).ready(() => {
     // toggle edit mode
     $('button').click(function (event) {
     	if (inEditMode) {
-    		inEditMode = false
+    		inEditMode = false;
+    		document.getElementById('editButton').innerHTML = "Edit";
     		$('button').css('background-color', 'white');
     		$('button').css('color', 'black');
     		reloadVerse();
     		save(verseTokens, referenceTokens, tokenDict);
     	} else {
-    		inEditMode = true
+    		inEditMode = true;
+    		document.getElementById('editButton').innerHTML = "Save";
     		$('button').css('background-color', '#2196F3');
     		$('button').css('color', 'white');
     		reloadVerse();
@@ -349,7 +326,7 @@ $(document).ready(() => {
     	if (typed == word) {
     		focusNextTextField(id); // focus the next textfield
     		switchToSpan(id, true); //switch input to span
-    		tokenDict[id]["correct"] = true;
+    		tokenDict[id].CORRECT = true;
     		save(verseTokens, referenceTokens, tokenDict);
     	}
 
@@ -384,12 +361,12 @@ $(document).ready(() => {
 	        type: "text"
 	    });
 	    $input.attr('id', id);
-	    $input.addClass("blank");
-	    $input.addClass("token");
+	    $input.addClass(BLANK);
+	    $input.addClass(TOKEN);
 	    if (id < verseTokens.length) {
-			$input.addClass("word");
+			$input.addClass(WORD);
 	    } else {
-	    	$input.addClass("nonword");
+	    	$input.addClass(NONWORD);
 	    }
 	    $input.width(width);
 	    $(tokenSpan).replaceWith($input);
@@ -408,16 +385,16 @@ $(document).ready(() => {
 			text: word
 		});
 		$span.attr('id', id);
-		$span.addClass('token');
-		$span.addClass('word');
+		$span.addClass(TOKEN);
+		$span.addClass(WORD);
 		if (correct) {
-			$span.addClass('correct');
-			$span.addClass('visible');
-			$span.removeClass('hidden');
-			tokenDict[id]["visible"] = true
+			$span.addClass(CORRECT);
+			$span.addClass(VISIBLE);
+			$span.removeClass(HIDDEN);
+			tokenDict[id].VISIBLE = true
 		} else {
-			$span.addClass('hidden');
-			$span.removeClass('visible');
+			$span.addClass(HIDDEN);
+			$span.removeClass(VISIBLE);
 		}
 		$(wordInput).replaceWith($span);
 		$span.on('click', changeVisibility);
@@ -425,10 +402,10 @@ $(document).ready(() => {
 
     // reloads elements based on visibility
 	reloadVerse = function () {
-		if (tokens != null) {
+		if (tokens != undefined) {
 			if (!inEditMode) {
 				for (i=0; i<tokens.length; i++) {
-					if (!tokenDict[i]["visible"]) {
+					if (!tokenDict[i].VISIBLE) {
 						switchToInput(i);
 					}
 				}
@@ -443,7 +420,7 @@ $(document).ready(() => {
 			    }
 			} else {
 			    for (i=0; i<tokens.length; i++) {
-			    	if (!tokenDict[i]["visible"]) {
+			    	if (!tokenDict[i].VISIBLE) {
 			    		switchToSpan(i, false);
 			    	}
 			    }
@@ -454,8 +431,9 @@ $(document).ready(() => {
 
 
 /** Util functions **/
+// removes ending punctuation from the token
 cleanToken = function (token) {
-	if (token[token.length-1].match(/\w/) != null) {
+	if (token[token.length-1].match(/\w/) != undefined) {
 		return token;
 	} else {
 		var word = token.substring(0, token.length-1);
@@ -463,15 +441,13 @@ cleanToken = function (token) {
 	}
 };
 
-// save passage and tokenDict
+// save verseTokens, referenceTokens, and tokenDict
 save = function (verseTokens, referenceTokens, tokenDict) {
-	chrome.storage.sync.set({"verseTokens": JSON.stringify(verseTokens)}, function () {
-	});
-	chrome.storage.sync.set({"referenceTokens": JSON.stringify(referenceTokens)}, function () {
-	});
-	chrome.storage.sync.set({"status": JSON.stringify(tokenDict)}, function () {
-	});
+	chrome.storage.sync.set({"verseTokens": JSON.stringify(verseTokens)});
+	chrome.storage.sync.set({"referenceTokens": JSON.stringify(referenceTokens)});
+	chrome.storage.sync.set({"tokenDict": JSON.stringify(tokenDict)});
 }
+
 
 // prevent default action of Tab key
 $(document).keydown(function (e) 

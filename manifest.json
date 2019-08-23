@@ -5,15 +5,14 @@
     "permissions": [
         "activeTab", 
         "declarativeContent", 
-        "storage",
-        "webRequest"
+        "storage"
     ],
     "background": {
-      "scripts": ["jquery.min.js", "popup.js"],
+      "scripts": ["jquery.min.js", "script.js"],
       "persistent": false
     },
     "chrome_url_overrides" : {
-        "newtab": "popup.html"
+        "newtab": "index.html"
     },
     "manifest_version": 2
 }
