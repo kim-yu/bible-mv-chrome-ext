@@ -2,21 +2,43 @@ body {
     margin: 0;
     padding: 0;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    grid-template-areas: "header header"
+                         "content"
+                         "footer";
+    vertical-align: center;
 }
 
 #user_input {
-    text-align: center;
-    margin: auto;
     padding: 20px;
+    grid-area: header;
+    float: left;
+    font-size: 1.5em;
+    vertical-align: center;
+}
+
+header {
+    vertical-align: center;
+}
+
+input, select {
+    font-size: 1em;
+}
+
+input[type="submit"] {
+    margin-left: 10px;
+    border-radius: 5px;
+    outline: none;
+    border-color: light-gray;
 }
 
 #container {
     text-align: center;
-    top: 40%;
-    bottom: 50%;
-    left: 15%;
-    right: 15%;
-    position: absolute;
+    margin: auto;
+    width: 100%;
+    height: 100%;
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
      -khtml-user-select: none; /* Konqueror HTML */
@@ -24,7 +46,13 @@ body {
         -ms-user-select: none; /* Internet Explorer/Edge */
             user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-    display: block;
+    grid-area: content;
+    grid-template-areas: "verse"
+                         "reference";
+    justify-content: space-around;
+    flex-direction: column;
+    display: flex;
+    transform: translateY(50%);
 }
 
 /* Edit button */
@@ -32,18 +60,17 @@ body {
     background-color: white;
     border: solid;
     color: black;
-    padding: 10px;
+    padding: 5px 10px;
     text-align: center;
     text-decoration: none;
-    display: inline-block;
-    float: right;
-    top: 30%;
-    right: 15%;
     border-radius: 8px;
     outline: none;
     border-color: #2196F3;
-    font-size: 15px;
-    position: absolute;
+    border-width: 2px;
+    font-size: 1em;
+    grid-area: header;
+    float: right;
+    margin-right: 10px;
 }
 
 .button:hover {
@@ -52,13 +79,13 @@ body {
 
 /* Verse */
 #verse {
-    font-size: 40px;
+    font-size: 2.5em;
     width: 75%;
-    padding-bottom: 10px;
     margin: auto;
     position: relative;
     cursor: default;
-    display: inline-block; 
+    justify-content: flex-start;
+    grid-area: verse;
 }
 
 .token {
@@ -67,7 +94,7 @@ body {
 }
 
 .word {
-    margin: 0px 7px 2px 7px;
+    margin: 0px 5px 2px 5px;
 }
 
 .nonword {
@@ -81,25 +108,25 @@ body {
 
 .hidden {
     color: transparent;
-    border-bottom: 4px solid black;
-    margin-bottom: -4px;
+    border-bottom: 3px solid black;
+    margin-bottom: -3px;
 }
 
 .blank {
     border: 0;
     outline: 0;
     background: transparent;
-    border-bottom: 4px solid black;
+    border-bottom: 3px solid black;
     text-align: center;
-    margin-bottom: -4px;
+    margin-bottom: -3px;
 }
 
 .blank.word {
-    font-size: 37px;
+    font-size: 1em;
 }
 
 .blank.nonword {
-    font-size: 27px;
+    font-size: 1em;
 }
 
 .correct {
@@ -109,17 +136,18 @@ body {
 }
 
 #reference {
+    width: 75%;
     margin: auto;
-    float: right;
-    margin-top: 40px;
-    font-size: 30px;
-    display: inline-block;
+    font-size: 2em;
     position: relative;
+    grid-area: reference;
 }
 
 footer {
     width: 100%;
+    grid-area: footer;
+    justify-content: space-around;
+    margin: 10px;
     bottom: 0;
     position: absolute;
-    margin: 10px;
 }
