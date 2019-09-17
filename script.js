@@ -24,8 +24,11 @@ $(document).ready(() => {
 	/** Initialize variables **/
 	var verse;
 	var reference;
+	var bookElement;
+	var selectedBook;
 	var book;
 	var chapter;
+	var verses;
 	var verse_start;
 	var verse_end;
 	var verseTokens;
@@ -34,6 +37,51 @@ $(document).ready(() => {
 	var tokenDict = {};
 
 	/** Retrieving data **/
+	// Handle user input
+	$('#book').change(function () {
+		bookElement = document.getElementById('book');
+		selectedBook = bookElement.options[bookElement.selectedIndex].value;
+		var chapterElement = document.getElementById('chapter');
+		chapterElement.innerHTML = "";
+		if (selectedBook.length > 0) {
+			var chapters = getChaptersForBook(selectedBook);
+			for (i = 0; i < chapters.length; i++) {
+				var c = chapters[i];
+				var option = document.createElement('option');
+				option.value = c;
+				option.innerHTML = c;
+				chapterElement.appendChild(option);
+			};
+		};
+	});
+
+	$('#chapter').change(function () {
+		chapter = document.getElementById('chapter').value;
+		var verseStartElement = document.getElementById('verse_start');
+		verseStartElement.innerHTML = "";
+		verses = getVersesForBookAndChapter(selectedBook, chapter);
+		for (i = 0; i < verses.length; i++) {
+			var v = verses[i];
+			var option = document.createElement('option');
+			option.value = v;
+			option.innerHTML = v;
+			verseStartElement.appendChild(option);
+		}
+	});
+
+	$('#verse_start').change(function () {
+		verse_start = document.getElementById('verse_start').value;
+		var verseEndElement = document.getElementById('verse_end');
+		verseEndElement.innerHTML = "";
+		for (i = verse_start; i < verses.length; i++) {
+			var v = verses[i];
+			var option = document.createElement('option');
+			option.value = v;
+			option.innerHTML = v;
+			verseEndElement.appendChild(option);
+		}
+	})
+
 	// Get passage
 	$('#search').click(function (event) {
 		var request = new XMLHttpRequest();
@@ -46,8 +94,7 @@ $(document).ready(() => {
 	        .join("&");
 		
 		// Get values entered by user
-		var b = document.getElementById('book');
-		var selectedBook = b.options[b.selectedIndex].value;
+		selectedBook = bookElement.options[bookElement.selectedIndex].value;
 		book = selectedBook.charAt(0).toUpperCase() + selectedBook.slice(1); // capitalize book name
 		chapter = document.getElementById('chapter').value;
 		verse_start = document.getElementById('verse_start').value;
@@ -441,12 +488,45 @@ cleanToken = function (token) {
 	}
 };
 
+// input validation
+getChaptersForBook = function (book) {
+	var chapters = [];
+	if (passage_data[book] != undefined) {
+		for (c = 1; c < passage_data[book].length + 1; c++) {
+			chapters.push(c);
+		}
+	}
+	return chapters;
+};
+
+getVersesForBookAndChapter = function (book, chapter) {
+	var verses = [];
+	if (passage_data[book] != undefined) {
+		for (v = 1; v < passage_data[book][chapter-1] + 1; v++) {
+			var omittedVerses = getOmittedVersesForBookAndChapter(book, chapter);
+			if (!omittedVerses.includes(v)) {
+				verses.push(v);
+			}
+		}
+	}
+	return verses;
+}
+
+getOmittedVersesForBookAndChapter = function (book, chapter) {
+	if (omitted_verses[book] != undefined) {
+		if (chapter in omitted_verses[book]) {
+			return omitted_verses[book][chapter]
+		}
+	}
+	return [];
+}
+
 // save verseTokens, referenceTokens, and tokenDict
 save = function (verseTokens, referenceTokens, tokenDict) {
 	chrome.storage.sync.set({"verseTokens": JSON.stringify(verseTokens)});
 	chrome.storage.sync.set({"referenceTokens": JSON.stringify(referenceTokens)});
 	chrome.storage.sync.set({"tokenDict": JSON.stringify(tokenDict)});
-}
+};
 
 
 // prevent default action of Tab key
@@ -455,5 +535,5 @@ $(document).keydown(function (e)
     if (e.keyCode == 9) {
 		event.preventDefault();
 		return false;
-    }
+    };
 });

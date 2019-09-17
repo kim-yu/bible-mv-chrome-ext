@@ -5,6 +5,7 @@
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="valid_verses.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
   </head>
   <title>Bible Memory Verse</title>
@@ -79,11 +80,17 @@
         <option value="jude">Jude</option>
         <option value="revelation">Revelation</option>
       </select>
-      <input id="chapter" type="number" name="chapter" placeholder="Chapter">
+      <select id="chapter" name="chapter">
+        <option value="" selected disabled hidden>--Chapter--</option>
+      </select>
       :
-      <input id="verse_start" type="number" name="verse_start" placeholder="Starting verse">
+      <select id="verse_start" name="verse_start">
+        <option value="" selected disabled hidden>--Starting Verse--</option>
+      </select>
       -
-      <input id="verse_end" type="number" name="verse_end" placeholder="Ending verse">
+      <select id="verse_end" name="verse_end">
+        <option value="" selected disabled hidden>--Ending Verse--</option>
+      </select>
       <input id="search" type="submit" value="Go">
       <button id = "editButton" class="button">Edit</button> 
     </header>
