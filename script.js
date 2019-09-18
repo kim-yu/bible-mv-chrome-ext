@@ -20,9 +20,9 @@ $(document).ready(() => {
 		'include-selahs': false,
 		'indent-poetry': false
 	};
-	const chapterDefaultOption = '<option value="" selected disabled hidden>--Chapter--</option>';
-	const verseStartDefaultOption = '<option value="" selected disabled hidden>--Starting Verse--</option>';
-	const verseEndDefaultOption = '<option value="" selected disabled hidden>--Ending Verse--</option>';
+	const chapterDefaultOption = '<option value="" selected>--Chapter--</option>';
+	const verseStartDefaultOption = '<option value="" selected>--Starting Verse--</option>';
+	const verseEndDefaultOption = '<option value="" selected>--Ending Verse--</option>';
 
 	/** Initialize variables **/
 	var verse;
@@ -89,6 +89,11 @@ $(document).ready(() => {
 
 	// Get passage
 	$('#search').click(function (event) {
+		// Display loading spinner and hide verse and reference
+		$('#verse').hide();
+		$('#reference').hide();
+		$('.loader').show();
+		
 		var request = new XMLHttpRequest();
 		// Set up parameters
 		var params = "&" + Object
@@ -101,9 +106,9 @@ $(document).ready(() => {
 		// Get values entered by user
 		selectedBook = bookElement.options[bookElement.selectedIndex].value;
 		book = selectedBook.charAt(0).toUpperCase() + selectedBook.slice(1); // capitalize book name
-		chapter = document.getElementById('chapter').value;
-		verse_start = document.getElementById('verse_start').value;
-		verse_end = document.getElementById('verse_end').value;
+		chapter = chapterElement.value;
+		verse_start = verseStartElement.value;
+		verse_end = verseEndElement.value;
 		
 		if (verse_end.length > 0) {
 			reference = `${book} ${chapter}:${verse_start}-${verse_end}`;
@@ -475,6 +480,9 @@ $(document).ready(() => {
 
     // reloads elements based on visibility
 	reloadVerse = function () {
+		$('.loader').hide();
+		$('#verse').show();
+		$('#reference').show();
 		if (tokens != undefined) {
 			if (!inEditMode) {
 				for (i=0; i<tokens.length; i++) {
