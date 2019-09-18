@@ -20,16 +20,22 @@ $(document).ready(() => {
 		'include-selahs': false,
 		'indent-poetry': false
 	};
+	const chapterDefaultOption = '<option value="" selected disabled hidden>--Chapter--</option>';
+	const verseStartDefaultOption = '<option value="" selected disabled hidden>--Starting Verse--</option>';
+	const verseEndDefaultOption = '<option value="" selected disabled hidden>--Ending Verse--</option>';
 
 	/** Initialize variables **/
 	var verse;
 	var reference;
-	var bookElement;
+	let bookElement = document.getElementById('book');
 	var selectedBook;
-	var book;
+	let chapterElement = document.getElementById('chapter');
 	var chapter;
+	let verseDiv = document.getElementById("verse");
 	var verses;
+	let verseStartElement = document.getElementById('verse_start');
 	var verse_start;
+	let verseEndElement = document.getElementById('verse_end');
 	var verse_end;
 	var verseTokens;
 	var referenceTokens;
@@ -39,10 +45,10 @@ $(document).ready(() => {
 	/** Retrieving data **/
 	// Handle user input
 	$('#book').change(function () {
-		bookElement = document.getElementById('book');
 		selectedBook = bookElement.options[bookElement.selectedIndex].value;
-		var chapterElement = document.getElementById('chapter');
-		chapterElement.innerHTML = "";
+		chapterElement.innerHTML = chapterDefaultOption;
+		verseStartElement.innerHTML = verseStartDefaultOption;
+		verseEndElement.innerHTML = verseEndDefaultOption;
 		if (selectedBook.length > 0) {
 			var chapters = getChaptersForBook(selectedBook);
 			for (i = 0; i < chapters.length; i++) {
@@ -56,9 +62,9 @@ $(document).ready(() => {
 	});
 
 	$('#chapter').change(function () {
-		chapter = document.getElementById('chapter').value;
-		var verseStartElement = document.getElementById('verse_start');
-		verseStartElement.innerHTML = "";
+		chapter = chapterElement.value;
+		verseStartElement.innerHTML = verseStartDefaultOption;
+		verseEndElement.innerHTML = verseEndDefaultOption;
 		verses = getVersesForBookAndChapter(selectedBook, chapter);
 		for (i = 0; i < verses.length; i++) {
 			var v = verses[i];
@@ -70,10 +76,9 @@ $(document).ready(() => {
 	});
 
 	$('#verse_start').change(function () {
-		verse_start = document.getElementById('verse_start').value;
-		var verseEndElement = document.getElementById('verse_end');
-		verseEndElement.innerHTML = "";
-		for (i = verse_start; i < verses.length; i++) {
+		verseStart = verseStartElement.value;
+		verseEndElement.innerHTML = verseEndDefaultOption;
+		for (i = verseStart; i < verses.length; i++) {
 			var v = verses[i];
 			var option = document.createElement('option');
 			option.value = v;
@@ -116,6 +121,12 @@ $(document).ready(() => {
 			verse = passage.trim().replace(RegExp(/\r?\n|\r/g), ' '); // trim and remove new lines
 			
 			// Parse passage
+			// remove descriptions
+			if (verse.includes('  ')) {
+				var indexOfFirstNewLine = verse.indexOf('  ');
+				verse = verse.substring(indexOfFirstNewLine+2);
+			}
+			verse = verse.replace(/ +(?= )/g,''); // remove extra spaces
 			if (verse.length > 0 && reference.length > 0) {
 				verseTokens = verse.split(" "); // split verse into words and punctuation
 				referenceTokens = [book, chapter, verse_start];
@@ -160,6 +171,7 @@ $(document).ready(() => {
 			tokenDict = JSON.parse(result.tokenDict);
 		}
 
+		prepopulateUserInput();
 		makeDivs();
 		save(verseTokens, referenceTokens, tokenDict);
 	});
@@ -190,9 +202,23 @@ $(document).ready(() => {
 	    }
 	}
 
+	prepopulateUserInput = function () {
+		if (referenceTokens.length > 0) {
+			let changeEvent = new Event('change');
+			$('#book').val(referenceTokens[0].toLowerCase());
+			bookElement.dispatchEvent(changeEvent);
+			$('#chapter').val(referenceTokens[1]);
+			chapterElement.dispatchEvent(changeEvent);
+			$('#verse_start').val(referenceTokens[2]);
+			verseStartElement.dispatchEvent(changeEvent);
+			if (referenceTokens.length == 4) {
+				$('#verse_end').val(referenceTokens[3]);
+			}
+		}
+	}
+
 	makeDivs = function () {
 		// create elements for words in verse
-	    let verseDiv = document.getElementById("verse");
 	    verseDiv.innerHTML = "";
 	    if (verseTokens != undefined) {
 	    	for (i=0; i<verseTokens.length; i++) {

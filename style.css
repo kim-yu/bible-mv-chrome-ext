@@ -52,7 +52,6 @@ input[type="submit"] {
     justify-content: space-around;
     flex-direction: column;
     display: flex;
-    transform: translateY(50%);
 }
 
 /* Edit button */
