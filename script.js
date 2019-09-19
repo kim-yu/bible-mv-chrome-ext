@@ -176,9 +176,9 @@ $(document).ready(() => {
 			tokenDict = JSON.parse(result.tokenDict);
 		}
 
-		prepopulateUserInput();
 		makeDivs();
 		save(verseTokens, referenceTokens, tokenDict);
+		prepopulateUserInput();
 	});
 
 	/**  Create HTML elements **/
@@ -211,11 +211,17 @@ $(document).ready(() => {
 		if (referenceTokens.length > 0) {
 			let changeEvent = new Event('change');
 			$('#book').val(referenceTokens[0].toLowerCase());
-			bookElement.dispatchEvent(changeEvent);
+			if (bookElement != null) {
+				bookElement.dispatchEvent(changeEvent);
+			}
 			$('#chapter').val(referenceTokens[1]);
-			chapterElement.dispatchEvent(changeEvent);
+			if (chapterElement != null) {
+				chapterElement.dispatchEvent(changeEvent);
+			}
 			$('#verse_start').val(referenceTokens[2]);
-			verseStartElement.dispatchEvent(changeEvent);
+			if (verseStartElement != null) {
+				verseStartElement.dispatchEvent(changeEvent);
+			}
 			if (referenceTokens.length == 4) {
 				$('#verse_end').val(referenceTokens[3]);
 			}
@@ -224,89 +230,93 @@ $(document).ready(() => {
 
 	makeDivs = function () {
 		// create elements for words in verse
-	    verseDiv.innerHTML = "";
-	    if (verseTokens != undefined) {
-	    	for (i=0; i<verseTokens.length; i++) {
-		        var wordSpan = document.createElement('span');
-		        wordSpan.id = i;
-		        this.initializeClassesForTokenSpan(wordSpan);
-		        this.modifyClassesForTokenSpan(wordSpan, i);
-		        $(wordSpan).on('click', changeVisibility);
+	    if (verseDiv != null) {
+	    	verseDiv.innerHTML = "";
+	    	if (verseTokens != undefined) {
+		    	for (i=0; i<verseTokens.length; i++) {
+			        var wordSpan = document.createElement('span');
+			        wordSpan.id = i;
+			        this.initializeClassesForTokenSpan(wordSpan);
+			        this.modifyClassesForTokenSpan(wordSpan, i);
+			        $(wordSpan).on('click', changeVisibility);
 
-		       	let token = verseTokens[i];
-		        let word = cleanToken(token); // use the part of the word before punctuation
-		        wordSpan.innerHTML = word;
-		        verseDiv.appendChild(wordSpan);
-		        
-		        // add spaces between words
-		        if (word.length != token.length) {
-		        	nonwordSpan = document.createElement('span');
-		        	nonwordSpan.classList.add(TOKEN);
-		        	nonwordSpan.classList.add(NONWORD);
-		        	nonwordSpan.innerHTML = token.slice(token.length-1)
-		        	verseDiv.appendChild(nonwordSpan);
-		        }
+			       	let token = verseTokens[i];
+			        let word = cleanToken(token); // use the part of the word before punctuation
+			        wordSpan.innerHTML = word;
+			        verseDiv.appendChild(wordSpan);
+			        
+			        // add spaces between words
+			        if (word.length != token.length) {
+			        	nonwordSpan = document.createElement('span');
+			        	nonwordSpan.classList.add(TOKEN);
+			        	nonwordSpan.classList.add(NONWORD);
+			        	nonwordSpan.innerHTML = token.slice(token.length-1)
+			        	verseDiv.appendChild(nonwordSpan);
+			        }
+			    }
 		    }
 	    }
 
 	    // create elements for reference
 	    let referenceDiv = document.getElementById("reference");
-	    referenceDiv.innerHTML = "";
-	    if (referenceTokens != undefined) {
-	    	id = verseTokens.length;
+	    if (referenceDiv != null) {
+	    	referenceDiv.innerHTML = "";
+	    	if (referenceTokens != undefined) {
+		    	id = verseTokens.length;
 
-	    	// add the book
-	    	var bookSpan = document.createElement('span');
-	    	bookSpan.id = id;
-	    	this.initializeClassesForTokenSpan(bookSpan);
-	    	this.modifyClassesForTokenSpan(bookSpan, id);
-	    	$(bookSpan).on('click', changeVisibility);
-	    	bookSpan.innerHTML = referenceTokens[0];
-	    	referenceDiv.appendChild(bookSpan);
-	    	
-	    	// add the chapter
-	    	var chapterSpan = document.createElement('span');
-	    	var chapterSpanId = id+1;
-	    	chapterSpan.id = chapterSpanId;
-	    	this.initializeClassesForTokenSpan(chapterSpan);
-	    	this.modifyClassesForTokenSpan(chapterSpan, chapterSpanId);
-	    	$(chapterSpan).on('click', changeVisibility);
-	    	chapterSpan.innerHTML = referenceTokens[1];
-	    	referenceDiv.appendChild(chapterSpan);
+		    	// add the book
+		    	var bookSpan = document.createElement('span');
+		    	bookSpan.id = id;
+		    	this.initializeClassesForTokenSpan(bookSpan);
+		    	this.modifyClassesForTokenSpan(bookSpan, id);
+		    	$(bookSpan).on('click', changeVisibility);
+		    	bookSpan.innerHTML = referenceTokens[0];
+		    	referenceDiv.appendChild(bookSpan);
+		    	
+		    	// add the chapter
+		    	var chapterSpan = document.createElement('span');
+		    	var chapterSpanId = id+1;
+		    	chapterSpan.id = chapterSpanId;
+		    	this.initializeClassesForTokenSpan(chapterSpan);
+		    	this.modifyClassesForTokenSpan(chapterSpan, chapterSpanId);
+		    	$(chapterSpan).on('click', changeVisibility);
+		    	chapterSpan.innerHTML = referenceTokens[1];
+		    	referenceDiv.appendChild(chapterSpan);
 
-			// add the colon
-			var colonSpan = document.createElement('span');
-			colonSpan.classList.add(TOKEN);
-			colonSpan.innerHTML = ":";
-			referenceDiv.appendChild(colonSpan);
+				// add the colon
+				var colonSpan = document.createElement('span');
+				colonSpan.classList.add(TOKEN);
+				colonSpan.innerHTML = ":";
+				referenceDiv.appendChild(colonSpan);
 
-	    	// add the starting verse
-	    	var verseStartSpan = document.createElement('span');
-	    	var verseStartSpanId = id+2;
-	    	verseStartSpan.id = verseStartSpanId;
-	    	this.initializeClassesForTokenSpan(verseStartSpan);
-	    	this.modifyClassesForTokenSpan(verseStartSpan, verseStartSpanId);
-	    	$(verseStartSpan).on('click', changeVisibility);
-	    	verseStartSpan.innerHTML = referenceTokens[2];
-	    	referenceDiv.appendChild(verseStartSpan);
+		    	// add the starting verse
+		    	var verseStartSpan = document.createElement('span');
+		    	var verseStartSpanId = id+2;
+		    	verseStartSpan.id = verseStartSpanId;
+		    	this.initializeClassesForTokenSpan(verseStartSpan);
+		    	this.modifyClassesForTokenSpan(verseStartSpan, verseStartSpanId);
+		    	$(verseStartSpan).on('click', changeVisibility);
+		    	verseStartSpan.innerHTML = referenceTokens[2];
+		    	referenceDiv.appendChild(verseStartSpan);
 
-	    	if (referenceTokens.length == 4) { // if the reference includes multiple verses
-	    		// add the hyphen
-	    		var hyphenSpan = document.createElement('span');
-	    		hyphenSpan.classList.add(TOKEN);
-	    		hyphenSpan.innerHTML = "-";
-	    		referenceDiv.appendChild(hyphenSpan);
+		    	if (referenceTokens.length == 4) { // if the reference includes multiple verses
+		    		// add the hyphen
+		    		var hyphenSpan = document.createElement('span');
+		    		hyphenSpan.classList.add(TOKEN);
+		    		hyphenSpan.innerHTML = "-";
+		    		referenceDiv.appendChild(hyphenSpan);
 
-	    		// add the ending verse
-	    		var verseEndSpan = document.createElement('span');
-	    		var verseEndSpanId = id+3;
-	    		verseEndSpan.id = verseEndSpanId;
-	    		this.initializeClassesForTokenSpan(verseEndSpan);
-	    		this.modifyClassesForTokenSpan(verseEndSpan, verseEndSpanId);
-	    		$(verseEndSpan).on('click', changeVisibility);
-	    		verseEndSpan.innerHTML = referenceTokens[3];
-	    		referenceDiv.appendChild(verseEndSpan);
-	    	}
+		    		// add the ending verse
+		    		var verseEndSpan = document.createElement('span');
+		    		var verseEndSpanId = id+3;
+		    		verseEndSpan.id = verseEndSpanId;
+		    		this.initializeClassesForTokenSpan(verseEndSpan);
+		    		this.modifyClassesForTokenSpan(verseEndSpan, verseEndSpanId);
+		    		$(verseEndSpan).on('click', changeVisibility);
+		    		verseEndSpan.innerHTML = referenceTokens[3];
+		    		referenceDiv.appendChild(verseEndSpan);
+		    	}
+		    }
 	    }
 	    reloadVerse();
 	}
@@ -434,48 +444,52 @@ $(document).ready(() => {
     // change span to input
     var switchToInput = function (id) {
     	var tokenSpan = document.getElementById(id);
-		var width = tokenSpan.offsetWidth;
-    	var $input = $("<input>", {
-	        type: "text"
-	    });
-	    $input.attr('id', id);
-	    $input.addClass(BLANK);
-	    $input.addClass(TOKEN);
-	    if (id < verseTokens.length) {
-			$input.addClass(WORD);
-	    } else {
-	    	$input.addClass(NONWORD);
-	    }
-	    $input.width(width);
-	    $(tokenSpan).replaceWith($input);
-	    $input.on('keyup', updateBlank);
+    	if (tokenSpan != null) {
+    		var width = tokenSpan.offsetWidth;
+	    	var $input = $("<input>", {
+		        type: "text"
+		    });
+		    $input.attr('id', id);
+		    $input.addClass(BLANK);
+		    $input.addClass(TOKEN);
+		    if (id < verseTokens.length) {
+				$input.addClass(WORD);
+		    } else {
+		    	$input.addClass(NONWORD);
+		    }
+		    $input.width(width);
+		    $(tokenSpan).replaceWith($input);
+		    $input.on('keyup', updateBlank);
+    	}
     }
 
     // change input to span
     var switchToSpan = function (id, correct) {
     	var wordInput = document.getElementById(id);
-    	if (id < verseTokens.length) {
-    		word = cleanToken(verseTokens[id])
-    	} else {
-    		word = referenceTokens[id-verseTokens.length]
+    	if (wordInput != null) {
+    		if (id < verseTokens.length) {
+	    		word = cleanToken(verseTokens[id])
+	    	} else {
+	    		word = referenceTokens[id-verseTokens.length]
+	    	}
+	    	var $span = $("<span>", {
+				text: word
+			});
+			$span.attr('id', id);
+			$span.addClass(TOKEN);
+			$span.addClass(WORD);
+			if (correct) {
+				$span.addClass(CORRECT);
+				$span.addClass(VISIBLE);
+				$span.removeClass(HIDDEN);
+				tokenDict[id].VISIBLE = true
+			} else {
+				$span.addClass(HIDDEN);
+				$span.removeClass(VISIBLE);
+			}
+			$(wordInput).replaceWith($span);
+			$span.on('click', changeVisibility);
     	}
-    	var $span = $("<span>", {
-			text: word
-		});
-		$span.attr('id', id);
-		$span.addClass(TOKEN);
-		$span.addClass(WORD);
-		if (correct) {
-			$span.addClass(CORRECT);
-			$span.addClass(VISIBLE);
-			$span.removeClass(HIDDEN);
-			tokenDict[id].VISIBLE = true
-		} else {
-			$span.addClass(HIDDEN);
-			$span.removeClass(VISIBLE);
-		}
-		$(wordInput).replaceWith($span);
-		$span.on('click', changeVisibility);
     }
 
     // reloads elements based on visibility
@@ -494,7 +508,7 @@ $(document).ready(() => {
 				// focus the first textfield in the verse
 			    for (i=0; i<tokens.length; i++) {
 			    	var element = document.getElementById(i);
-			    	if (element.nodeName == "INPUT") {
+			    	if (element != null && element.nodeName == "INPUT") {
 			    		$(element).focus();
 			    		break;
 			    	}
