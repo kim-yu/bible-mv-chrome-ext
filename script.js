@@ -154,7 +154,7 @@ $(document).ready(() => {
 
 	/** Storage **/
 
-	// // Uncomment the code below to clear storage
+	// Uncomment the code below to clear storage
 	// chrome.storage.sync.clear(function () {
 	// var error = chrome.runtime.lastError;
 	// 	if (error) {
@@ -177,6 +177,7 @@ $(document).ready(() => {
 		}
 
 		makeDivs();
+		focusFirstTextField();
 		save(verseTokens, referenceTokens, tokenDict);
 		prepopulateUserInput();
 	});
@@ -189,22 +190,23 @@ $(document).ready(() => {
 	};
 
 	modifyClassesForTokenSpan = function (tokenSpan, index) {
-		if (tokenDict[index].CORRECT) {
-        	tokenSpan.classList.add(CORRECT);
-        } else {
-        	if (tokenDict[index].VISIBLE) {
-	        	tokenSpan.classList.add(VISIBLE);
-	        	tokenSpan.classList.remove(HIDDEN);
-	        } else {
-	        	tokenSpan.classList.add(HIDDEN);
+		if (tokenDict[index].BLANK) {
+			tokenSpan.classList.add(BLANK);
+			if (tokenDict[index].VISIBLE) {
+				tokenSpan.classList.add(VISIBLE);
+				tokenSpan.classList.remove(HIDDEN);
+				if (tokenDict[index].CORRECT) {
+					tokenSpan.classList.add(CORRECT);
+				} else {
+					tokenSpan.classList.remove(CORRECT);
+				}
+			} else {
+				tokenSpan.classList.add(HIDDEN);
 	        	tokenSpan.classList.remove(VISIBLE);
-	        }
-	        if (tokenDict[index].BLANK) {
-	        	tokenSpan.classList.add(BLANK);
-	        } else {
-	        	tokenSpan.classList.remove(BLANK);
-	        }
-	    }
+			}
+		} else {
+			tokenSpan.classList.remove(BLANK);
+		}
 	}
 
 	prepopulateUserInput = function () {
@@ -333,25 +335,23 @@ $(document).ready(() => {
     			word = cleanToken(verseTokens[id]);
     		} else {
     			word = referenceTokens[id-verseTokens.length];
-    		}
-    		if (wordSpan.classList.contains(CORRECT)) {
-    			if (wordSpan.innerHTML == word) {
-    				wordSpan.classList.remove(CORRECT);
-    				wordSpan.classList.add(HIDDEN);
-    				tokenDict[id].VISIBLE = false;
-    			}
-    		} else if (wordSpan.classList.contains(VISIBLE)) {
-    			wordSpan.classList.remove(VISIBLE);
-    			wordSpan.classList.add(HIDDEN);
-    			wordSpan.innerHTML = word;
-    			tokenDict[id].VISIBLE = false;
-    		} else if (wordSpan.classList.contains(HIDDEN)) {
-    			wordSpan.classList.remove(HIDDEN);
-    			wordSpan.classList.add(VISIBLE);
-    			wordSpan.innerHTML = word;
-    			tokenDict[id].VISIBLE = true;
-    		} 
-    	}
+			}
+			if (tokenDict[id].BLANK) {
+				wordSpan.classList.remove(BLANK);
+				tokenDict[id].BLANK = false;
+				wordSpan.classList.remove(HIDDEN);
+				wordSpan.classList.add(VISIBLE);
+				tokenDict[id].VISIBLE = true;
+				wordSpan.classList.remove(CORRECT);
+				tokenDict[id].CORRECT = false;
+			} else {
+				wordSpan.classList.add(BLANK);
+				tokenDict[id].BLANK = true;
+				wordSpan.classList.remove(VISIBLE);
+				wordSpan.classList.add(HIDDEN);
+				tokenDict[id].VISIBLE = false;
+			}
+		}
     }
 
     // toggle edit mode
@@ -361,14 +361,16 @@ $(document).ready(() => {
     		document.getElementById('editButton').innerHTML = "Edit";
     		$('button').css('background-color', 'white');
     		$('button').css('color', 'black');
-    		reloadVerse();
+			reloadVerse();
+			focusFirstTextField();
     		save(verseTokens, referenceTokens, tokenDict);
     	} else {
     		inEditMode = true;
     		document.getElementById('editButton').innerHTML = "Save";
     		$('button').css('background-color', '#2196F3');
     		$('button').css('color', 'white');
-    		reloadVerse();
+			reloadVerse();
+			save(verseTokens, referenceTokens, tokenDict);
     	}
     });
 
@@ -381,18 +383,21 @@ $(document).ready(() => {
 			nextBox = textboxes[currentBoxIndex+1];
 			nextBox.focus();
 		} else {
-			// focus the first textfield in the verse
-		    for (i=0; i<tokens.length; i++) {
-		    	var element = document.getElementById(i);
-		    	if (element.nodeName == "INPUT") {
-		    		$(element).focus();
-		    		break;
-		    	}
-		    }
+		    focusFirstTextField();
 		}
 		event.preventDefault();
 		return false;
-    }
+	}
+	
+	var focusFirstTextField = function () {
+		for (i=0; i<tokens.length; i++) {
+			var element = document.getElementById(i);
+			if (element.nodeName == "INPUT") {
+				$(element).focus();
+				break;
+			}
+		}
+	}
 
     // update the color of text and switch to span depending on accuracy
     var updateBlank = function () {
@@ -412,9 +417,19 @@ $(document).ready(() => {
 
     	// if word is finished correctly
     	if (typed == word) {
-    		focusNextTextField(id); // focus the next textfield
-    		switchToSpan(id, true); //switch input to span
-    		tokenDict[id].CORRECT = true;
+			tokenDict[id].CORRECT = true;
+    		switchToSpan(id); //switch input to span
+			if (checkAllWords()) {
+				if (confirm('Congrats!\nDo you want to reset all blanks?')) {
+					for (i in tokenDict) {
+						if (tokenDict[i].BLANK && tokenDict[i].CORRECT) {
+							tokenDict[i].CORRECT = false;
+						}
+					}
+				}
+			}
+			reloadVerse();
+			focusNextTextField(id); // focus the next textfield
     		save(verseTokens, referenceTokens, tokenDict);
     	}
 
@@ -464,7 +479,7 @@ $(document).ready(() => {
     }
 
     // change input to span
-    var switchToSpan = function (id, correct) {
+    var switchToSpan = function (id) {
     	var wordInput = document.getElementById(id);
     	if (wordInput != null) {
     		if (id < verseTokens.length) {
@@ -478,14 +493,15 @@ $(document).ready(() => {
 			$span.attr('id', id);
 			$span.addClass(TOKEN);
 			$span.addClass(WORD);
-			if (correct) {
-				$span.addClass(CORRECT);
-				$span.addClass(VISIBLE);
-				$span.removeClass(HIDDEN);
-				tokenDict[id].VISIBLE = true
+			if (tokenDict[id].BLANK) {
+				if (tokenDict[id].CORRECT) {
+					$span.addClass(CORRECT);
+					$span.addClass(VISIBLE);
+				} else {
+					$span.addClass(HIDDEN);
+				}
 			} else {
-				$span.addClass(HIDDEN);
-				$span.removeClass(VISIBLE);
+				$span.addClass(VISIBLE);
 			}
 			$(wordInput).replaceWith($span);
 			$span.on('click', changeVisibility);
@@ -500,8 +516,10 @@ $(document).ready(() => {
 		if (tokens != undefined) {
 			if (!inEditMode) {
 				for (i=0; i<tokens.length; i++) {
-					if (!tokenDict[i].VISIBLE) {
+					if (tokenDict[i].BLANK && !tokenDict[i].CORRECT) {
 						switchToInput(i);
+					} else {
+						switchToSpan(i);
 					}
 				}
 
@@ -515,12 +533,19 @@ $(document).ready(() => {
 			    }
 			} else {
 			    for (i=0; i<tokens.length; i++) {
-			    	if (!tokenDict[i].VISIBLE) {
-			    		switchToSpan(i, false);
-			    	}
+			    	switchToSpan(i);
 			    }
 			}
 		}
+	}
+
+	checkAllWords = function () {
+		for (i in tokenDict) {
+			if (tokenDict[i].BLANK && !tokenDict[i].CORRECT) {
+				return false;
+			}
+		}
+		return true;
 	}
 });
 

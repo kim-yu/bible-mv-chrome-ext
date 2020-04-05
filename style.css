@@ -113,7 +113,6 @@ input[type="submit"] {
 
 .token {
     float: left;
-    display: inline-block;
 }
 
 .word {
@@ -142,13 +141,6 @@ input[type="submit"] {
     border-bottom: 3px solid black;
     text-align: center;
     margin-bottom: -3px;
-}
-
-.blank.word {
-    font-size: 1em;
-}
-
-.blank.nonword {
     font-size: 1em;
 }
 
