@@ -19,10 +19,6 @@ body {
     vertical-align: center;
 }
 
-header {
-    vertical-align: center;
-}
-
 input, select {
     font-size: 1em;
 }
@@ -79,7 +75,7 @@ input[type="submit"] {
 }
 
 /* Edit button */
-.button {
+#editButton {
     background-color: white;
     border: solid;
     color: black;
@@ -159,11 +155,26 @@ input[type="submit"] {
 }
 
 footer {
-    width: 90%;
     grid-area: footer;
-    justify-content: space-around;
-    margin: 10px;
     bottom: 0;
+    float: left;
     position: absolute;
-    display: flex;
+    vertical-align: center;
+    padding: 20px;
+}
+
+#feedback {
+    background-color: white;
+    border: solid;
+    color: black;
+    border-radius: 8px;
+    border-color: gray;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    font-size: 1em;
+    grid-area: footer;
+    float: right;
+    margin-right: 10px;
 }

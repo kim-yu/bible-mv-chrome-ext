@@ -152,6 +152,11 @@ $(document).ready(() => {
 		request.send();
 	});
 
+	// Get feedback
+	$('#feedback').click(function (event) {
+		window.open('https://docs.google.com/forms/d/e/1FAIpQLSfvuGY0biHu_PWmAYmaeOJzNwtq5jQ_buiQuh03GqkWvpkatw/viewform?usp=sf_link', '_blank');
+	});
+
 	/** Storage **/
 
 	// Uncomment the code below to clear storage
@@ -355,20 +360,20 @@ $(document).ready(() => {
     }
 
     // toggle edit mode
-    $('button').click(function (event) {
+    $('#editButton').click(function (event) {
     	if (inEditMode) {
     		inEditMode = false;
     		document.getElementById('editButton').innerHTML = "Edit";
-    		$('button').css('background-color', 'white');
-    		$('button').css('color', 'black');
+    		$('#editButton').css('background-color', 'white');
+    		$('#editButton').css('color', 'black');
 			reloadVerse();
 			focusFirstTextField();
     		save(verseTokens, referenceTokens, tokenDict);
     	} else {
     		inEditMode = true;
     		document.getElementById('editButton').innerHTML = "Save";
-    		$('button').css('background-color', '#2196F3');
-    		$('button').css('color', 'white');
+    		$('#editButton').css('background-color', '#2196F3');
+    		$('#editButton').css('color', 'white');
 			reloadVerse();
 			save(verseTokens, referenceTokens, tokenDict);
     	}

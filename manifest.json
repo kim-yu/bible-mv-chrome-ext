@@ -1,5 +1,5 @@
 {
-    "name": "Bible Memory Verse",
+    "name": "Bible Memory Verse Tab",
     "version": "1.0",
     "description": "Chrome extension that overrides the New Tab page and helps the user memorize Bible verses",
     "permissions": [
